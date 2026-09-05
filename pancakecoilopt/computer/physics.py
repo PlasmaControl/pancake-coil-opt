@@ -20,6 +20,7 @@ from jax import Array
 from jax.typing import ArrayLike
 from scipy.constants import mu_0, pi
 
+from ..batching import vmap_chunked
 from . import basics
 
 
@@ -561,4 +562,196 @@ def compute_minimum_J_critical_of_the_whole_coil(
         compute_something_in_the_whole_coil(
             r_source, z_source, J_source, dA, "J_critical", curve_parameters
         )
+    )
+
+
+# --- Batched evaluation and the self-consistent current-density solve -----
+#
+# Everything above vectorizes with a single jax.vmap: fine when the number
+# of source points times target points is modest, but the fully-vectorized
+# intermediates (one elliptic-integral evaluation per source-target pair)
+# can outgrow memory for a fine coil discretization or a fine field grid.
+# The functions below use `vmap_chunked` (batching.py) to bound peak memory
+# by evaluating in chunks, at the cost of doing so sequentially instead of
+# all at once.
+
+
+def compute_magnetic_field_at_a_point_batched(
+    r_source: Array,
+    z_source: Array,
+    J_phi: Array,
+    dA: float,
+    r: float,
+    z: float,
+    chunk_size: int = 256,
+) -> Array:
+    """Same result as `compute_magnetic_field_at_a_point_from_source_points`,
+    but sums the per-source contributions in chunks of `chunk_size` instead
+    of computing all of them at once.
+    """
+
+    def per_source(r_s: Array, z_s: Array, J_s: Array) -> Array:
+        grid_spacing_squared = dA / 4
+        delta_z = z - z_s
+
+        k_squared = 4 * r_s * r / ((r_s + r) ** 2 + delta_z**2 + grid_spacing_squared)
+        ellip_K = jaxellip.ellipk(k_squared)
+        ellip_E = jaxellip.ellipe(k_squared)
+
+        current = J_s * dA
+        common_multiplier = (
+            mu_0
+            * current
+            / (2 * pi * jnp.sqrt(delta_z**2 + (r_s + r) ** 2 + grid_spacing_squared))
+        )
+        common_denominator = delta_z**2 + (r - r_s) ** 2 + grid_spacing_squared
+
+        B_z_contribution = common_multiplier * (
+            (r_s**2 - delta_z**2 - r**2) * ellip_E / common_denominator + ellip_K
+        )
+        r_safe = jnp.where(r == 0, 1.0, r)
+        B_r_contribution = jnp.where(
+            r == 0,
+            0.0,
+            common_multiplier
+            * delta_z
+            / r_safe
+            * ((r_s**2 + delta_z**2 + r**2) * ellip_E / common_denominator - ellip_K),
+        )
+        return jnp.array([B_r_contribution, B_z_contribution])
+
+    per_source_batched = vmap_chunked(
+        per_source, in_axes=(0, 0, 0), chunk_size=chunk_size
+    )
+    contributions = per_source_batched(r_source, z_source, J_phi)
+    return jnp.sum(contributions, axis=0)
+
+
+def compute_magnetic_field_on_coil_batched(
+    r_source: Array,
+    z_source: Array,
+    J_phi: Array,
+    dA: float,
+    r_targets: Array,
+    z_targets: Array,
+    chunk_size_sources: int = 256,
+    chunk_size_targets: int = 256,
+) -> tuple[Array, Array]:
+    """(B_r, B_z) at many target points, batching over both the source
+    points (per target) and the targets themselves.
+    """
+
+    def per_target(r_t: Array, z_t: Array) -> Array:
+        return compute_magnetic_field_at_a_point_batched(
+            r_source, z_source, J_phi, dA, r_t, z_t, chunk_size=chunk_size_sources
+        )
+
+    per_target_batched = vmap_chunked(
+        per_target, in_axes=(0, 0), chunk_size=chunk_size_targets
+    )
+    B_r_and_B_z = per_target_batched(r_targets, z_targets)
+    return B_r_and_B_z[:, 0], B_r_and_B_z[:, 1]
+
+
+def compute_minimum_J_critical_field_batched(
+    r_targets: Array,
+    z_targets: Array,
+    B_r_reference: Array,
+    B_z_reference: Array,
+    current_density: float,
+    curve_parameters: Array,
+    chunk_size: int = 256,
+) -> ArrayLike:
+    """Minimum J_critical over many target points, given a precomputed
+    *reference* field (see `compute_maximum_possible_current_density` for
+    why the field can be precomputed once and scaled) rather than
+    recomputing Biot-Savart from source points.
+
+    Unlike `compute_angle_between_field_and_tape_at_a_point_from_source_points`,
+    the raw (unfolded) angle is used here without folding it into
+    [0, pi/2] — harmless, since J_critical only ever uses sin(angle)^2 and
+    cos(angle)^2, both already symmetric under angle -> pi - angle.
+    """
+
+    def per_target(
+        r_t: Array, z_t: Array, B_r_ref: Array, B_z_ref: Array
+    ) -> Array:
+        B_r = current_density * B_r_ref
+        B_z = current_density * B_z_ref
+        B_magnitude = jnp.sqrt(B_r**2 + B_z**2)
+
+        tangent = basics.compute_curve_unit_tangent(z_t, curve_parameters)
+        cos_angle = (B_r * tangent[0] + B_z * tangent[1]) / (B_magnitude + 1e-12)
+        angle = jnp.arccos(jnp.clip(cos_angle, -1.0 + 1e-7, 1.0 - 1e-7))
+
+        return J_critical_of_SuperPower_SCS2050(angle, B_magnitude)
+
+    per_target_batched = vmap_chunked(
+        per_target, in_axes=(0, 0, 0, 0), chunk_size=chunk_size
+    )
+    J_critical_at_every_target = per_target_batched(
+        r_targets, z_targets, B_r_reference, B_z_reference
+    )
+    return jnp.min(J_critical_at_every_target)
+
+
+def compute_maximum_possible_current_density(
+    curve_parameters: Array,
+    total_arc_length: float,
+    width: float,
+    nr: int,
+    nz: int,
+    initial_current_density: float,
+) -> ArrayLike:
+    """Solve for the coil's self-consistent operating current density: the
+    highest uniform current density the coil can carry such that, at every
+    point on the coil, the field that current density itself produces
+    doesn't push the local J_critical below that same current density.
+
+    This is a fixed-point problem — the field depends on the current
+    density, and the maximum allowable current density depends on the
+    field — solved by finding the root of
+    f(J) = J - min(J_critical over the coil, given field from J).
+
+    The key simplification: Biot-Savart is linear in current density, and
+    every source point here shares the same J. So the field at any
+    candidate J is just J times the field from a *unit* current density
+    (J=1) — computed once outside the root-finding loop — rather than
+    re-running the full Biot-Savart sum on every Newton iteration.
+    """
+    # The current density returned here is discarded: only the geometry
+    # (r_source, z_source, dA) is needed, since the field is evaluated at a
+    # unit current density below and scaled from there.
+    r_source, z_source, _initial_J_source, dA = (
+        basics.compute_source_points_at_right_half_for_bent_coil(
+            curve_parameters, total_arc_length, width, initial_current_density, nr, nz
+        )
+    )
+
+    unit_current_density = jnp.ones_like(r_source)
+    B_r_reference, B_z_reference = compute_magnetic_field_on_coil_batched(
+        r_source,
+        z_source,
+        unit_current_density,
+        dA,
+        r_source,
+        z_source,
+        chunk_size_sources=512,
+        chunk_size_targets=1024,
+    )
+
+    def f(current_density: Array) -> Array:
+        J_critical_minimum = compute_minimum_J_critical_field_batched(
+            r_source,
+            z_source,
+            B_r_reference,
+            B_z_reference,
+            current_density[0],
+            curve_parameters,
+            chunk_size=512,
+        )
+        return current_density[0] - J_critical_minimum
+
+    return basics.solve_f_of_x_equals_0_with_finite_differences(
+        f, initial_current_density
     )

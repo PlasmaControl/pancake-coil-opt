@@ -340,3 +340,101 @@ def test_compute_something_in_the_whole_coil_and_its_minimum(curved_coil_sources
     assert float(minimum) == pytest.approx(
         float(jnp.min(J_c_at_every_source_point)), rel=1e-6
     )
+
+
+def test_batched_point_field_matches_the_unbatched_kernel(curved_coil_sources):
+    r_source, z_source, J_source, dA, _ = curved_coil_sources
+    r, z = 0.05, 0.15
+
+    B_r_unbatched, B_z_unbatched = (
+        physics.compute_magnetic_field_at_a_point_from_source_points(
+            r_source, z_source, J_source, dA, r, z
+        )
+    )
+    B_r_B_z_batched = physics.compute_magnetic_field_at_a_point_batched(
+        r_source, z_source, J_source, dA, r, z, chunk_size=7
+    )
+
+    assert float(B_r_B_z_batched[0]) == pytest.approx(float(B_r_unbatched), rel=1e-5)
+    assert float(B_r_B_z_batched[1]) == pytest.approx(float(B_z_unbatched), rel=1e-5)
+
+
+def test_batched_field_on_coil_matches_per_point_batched_evaluation(
+    curved_coil_sources,
+):
+    r_source, z_source, J_source, dA, _ = curved_coil_sources
+    # Evaluate the field the coil produces on itself, at a handful of its
+    # own source points, batching over sources AND targets at once.
+    r_targets = r_source[:5]
+    z_targets = z_source[:5]
+
+    B_r_batched, B_z_batched = physics.compute_magnetic_field_on_coil_batched(
+        r_source, z_source, J_source, dA, r_targets, z_targets,
+        chunk_size_sources=6, chunk_size_targets=2,
+    )
+
+    for i in range(5):
+        expected = physics.compute_magnetic_field_at_a_point_batched(
+            r_source, z_source, J_source, dA, r_targets[i], z_targets[i]
+        )
+        assert float(B_r_batched[i]) == pytest.approx(float(expected[0]), rel=1e-5)
+        assert float(B_z_batched[i]) == pytest.approx(float(expected[1]), rel=1e-5)
+
+
+def test_self_consistent_current_density_is_between_zero_and_J_c0():
+    curve_parameters = jnp.array([0.1, 0.3, 0.0])
+    total_arc_length = 0.4
+    width = 0.01
+
+    J_c0 = 58.81 / 0.000095 / 0.002  # J_critical at zero field
+
+    solved_current_density = physics.compute_maximum_possible_current_density(
+        curve_parameters,
+        total_arc_length,
+        width,
+        nr=4,
+        nz=10,
+        initial_current_density=1e7,
+    )
+
+    assert jnp.isfinite(solved_current_density)
+    assert 0.0 < float(solved_current_density) < J_c0
+
+
+def test_self_consistent_current_density_satisfies_its_own_fixed_point(
+    curved_coil_sources,
+):
+    # Re-derive the solved current density's defining equation directly and
+    # check it actually holds: J = min(J_critical over the coil, given the
+    # field that J itself produces).
+    r_source, z_source, J_source, dA, curve_parameters = curved_coil_sources
+    total_arc_length = 0.4
+    width = 0.01
+
+    solved_current_density = physics.compute_maximum_possible_current_density(
+        curve_parameters,
+        total_arc_length,
+        width,
+        nr=4,
+        nz=10,
+        initial_current_density=1e7,
+    )
+
+    r_source, z_source, J_source, dA = (
+        basics.compute_source_points_at_right_half_for_bent_coil(
+            curve_parameters,
+            total_arc_length,
+            width,
+            float(solved_current_density),
+            nr=4,
+            nz=10,
+        )
+    )
+    J_critical_at_every_source_point = physics.compute_something_in_the_whole_coil(
+        r_source, z_source, J_source, dA, "J_critical", curve_parameters
+    )
+    minimum_J_critical = jnp.min(J_critical_at_every_source_point)
+
+    assert float(minimum_J_critical) == pytest.approx(
+        float(solved_current_density), rel=1e-2
+    )

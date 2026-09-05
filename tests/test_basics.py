@@ -57,6 +57,24 @@ def test_newton_solver_finds_a_known_root():
     assert float(root) == pytest.approx(2.0, abs=1e-6)
 
 
+def test_finite_difference_newton_solver_finds_a_known_root():
+    root = basics.solve_f_of_x_equals_0_with_finite_differences(
+        lambda x: x[0] ** 2 - 4.0, x0=3.0
+    )
+    assert float(root) == pytest.approx(2.0, abs=1e-3)
+
+
+def test_finite_difference_solver_stays_finite_at_current_density_scale():
+    # This is the scenario the relative step size was chosen for: x0 around
+    # 1e7 (typical current densities), where an absolute step size would
+    # underflow float32 precision and produce a NaN Newton step.
+    root = basics.solve_f_of_x_equals_0_with_finite_differences(
+        lambda x: x[0] - 5_000_000.0, x0=1e7
+    )
+    assert jnp.isfinite(root)
+    assert float(root) == pytest.approx(5_000_000.0, rel=1e-3)
+
+
 def test_source_points_for_a_straight_coil_span_the_expected_annulus(
     constant_radius_curve,
 ):

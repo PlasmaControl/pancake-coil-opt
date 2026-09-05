@@ -16,8 +16,7 @@ downstream:
      inverse of that (given a target tape length, how tall is the coil?).
   2. A cloud of discrete (r, z) "source points" approximating the coil's
      right-half cross-section, each carrying a current density and an area
-     element — the raw input the Biot-Savart field calculation (physics.py,
-     built next) sums over.
+     element — the raw input the Biot-Savart field calculation sums over.
 """
 
 import functools
@@ -120,6 +119,43 @@ def solve_f_of_x_equals_0_with_grad(
     @jax.jit
     def newton_step(x):
         return x - f(x) / grad_f(x)
+
+    return jax.lax.fori_loop(
+        0, iterations, lambda _, x: newton_step(x), jnp.array([x0])
+    )[0]
+
+
+def solve_f_of_x_equals_0_with_finite_differences(
+    f: Callable[[Array], Array], x0: float, iterations: int = 10
+) -> ArrayLike:
+    """Same fixed-iteration Newton's method as `solve_f_of_x_equals_0_with_grad`,
+    but with a central-difference derivative instead of autodiff.
+
+    Used for the self-consistent current-density solve (physics.py), where
+    `f` involves a `jnp.min` over many field-point evaluations; autodiff
+    through that pattern is well-defined in principle but this route has
+    proven more numerically robust in practice.
+    """
+    f = jax.jit(f)
+
+    # Step size ~1e-3 relative to x0. A fixed absolute step (like x0/1e7)
+    # underflows float32 precision for the large x0 values this solves for
+    # in practice (current densities ~1e7): the central difference then
+    # subtracts two nearly-equal floats, and catastrophic cancellation
+    # leaves a near-zero or garbage derivative, sending Newton's step to
+    # NaN. A relative step avoids that regardless of x0's scale.
+    step_size = jnp.abs(x0) * 1e-3 + 1e-12
+
+    @jax.jit
+    def grad_f(x):
+        return (f(x + step_size) - f(x - step_size)) / (2 * step_size)
+
+    @jax.jit
+    def newton_step(x):
+        g = grad_f(x)
+        # Guard a near-zero derivative so a step can't blow up to NaN.
+        g_safe = jnp.where(jnp.abs(g) < 1e-12, 1.0, g)
+        return x - f(x) / g_safe
 
     return jax.lax.fori_loop(
         0, iterations, lambda _, x: newton_step(x), jnp.array([x0])
