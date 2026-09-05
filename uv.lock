@@ -52,6 +52,18 @@ wheels = [
 ]
 
 [[package]]
+name = "jaxellip"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jax" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ae/83/a13a459ac06e7cab4cca8571fa4b1d22074b18fb35e60fab962203c09cc3/jaxellip-0.0.1.tar.gz", hash = "sha256:e3d1ef022a8a7bec2d39c8112c9e8d4c4c56aaac498022e81fd635705664e3f8", size = 8518, upload-time = "2025-04-17T04:39:34.47Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/a6/5365930d96cdd716a89a9fd1705970f2ced662d95fff736db135d776a8f2/jaxellip-0.0.1-py3-none-any.whl", hash = "sha256:2d6c3b50f16acf9d6a9f9d09f4d9a16379ff31e5548bd7e05646d7df0a5c66ed", size = 4783, upload-time = "2025-04-17T04:39:33.094Z" },
+]
+
+[[package]]
 name = "jaxlib"
 version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -220,6 +232,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "jax" },
+    { name = "jaxellip" },
     { name = "numpy" },
     { name = "pydantic" },
     { name = "scipy" },
@@ -234,6 +247,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "jax", specifier = "==0.6.0" },
+    { name = "jaxellip", specifier = "==0.0.1" },
     { name = "numpy", specifier = "==2.2.4" },
     { name = "pydantic", specifier = "==2.11.3" },
     { name = "scipy", specifier = "==1.15.2" },
