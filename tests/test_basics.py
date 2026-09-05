@@ -105,3 +105,59 @@ def test_source_points_for_a_straight_coil_span_the_expected_annulus(
     assert float(total_area_from_points) == pytest.approx(
         width * total_arc_length, abs=1e-4
     )
+
+
+@pytest.fixture
+def a_bent_coil():
+    from pancakecoilopt.computer import schemas
+
+    # Chosen so r-extent and z-extent are comparable (avoids the default
+    # nz-from-aspect-ratio formula degenerating to a 1-point axis).
+    return schemas.BentPancakeCoil(
+        number_of_pancakes=5,
+        separation_between_pancakes=0.05,
+        current_source=100.0,
+        tape=schemas.HTSTape(thickness=0.001, width=0.004),
+        number_of_turns=10,
+        curve_parameters=[0.05, 0.0, 0.0],
+    )
+
+
+def test_generate_a_grid_covers_the_coil_by_default(a_bent_coil):
+    R, Z = basics.generate_a_grid(a_bent_coil, nr=8, numpy_or_jax="numpy")
+    assert R.shape == Z.shape
+    assert float(R.min()) == pytest.approx(-a_bent_coil.maximum_outer_radius, abs=1e-6)
+    assert float(R.max()) == pytest.approx(a_bent_coil.maximum_outer_radius, abs=1e-6)
+    assert float(Z.min()) == pytest.approx(-a_bent_coil.maximum_height / 2, abs=1e-4)
+    assert float(Z.max()) == pytest.approx(a_bent_coil.maximum_height / 2, abs=1e-4)
+
+
+def test_generate_a_grid_ignores_a_narrower_explicit_range(a_bent_coil):
+    # A range narrower than the coil's own extent is NOT honored -- the
+    # grid always covers at least the whole coil, silently widening a
+    # too-small request back out to the coil's default extent.
+    narrower_than_the_coil = (-0.001, 0.001)
+    R, _ = basics.generate_a_grid(
+        a_bent_coil, nr=8, r_range=narrower_than_the_coil, numpy_or_jax="numpy"
+    )
+    assert float(R.min()) == pytest.approx(-a_bent_coil.maximum_outer_radius, abs=1e-6)
+    assert float(R.max()) == pytest.approx(a_bent_coil.maximum_outer_radius, abs=1e-6)
+
+
+def test_generate_a_grid_honors_a_wider_explicit_range(a_bent_coil):
+    wider_than_the_coil = (-100.0, 100.0)
+    R, _ = basics.generate_a_grid(
+        a_bent_coil, nr=8, r_range=wider_than_the_coil, numpy_or_jax="numpy"
+    )
+    assert float(R.min()) == pytest.approx(-100.0, abs=1e-6)
+    assert float(R.max()) == pytest.approx(100.0, abs=1e-6)
+
+
+def test_generate_a_grid_range_endpoints_are_independent(a_bent_coil):
+    # One side wider than the coil (honored), the other narrower (clipped
+    # back to the coil's own default extent).
+    R, _ = basics.generate_a_grid(
+        a_bent_coil, nr=8, r_range=(-100.0, 0.001), numpy_or_jax="numpy"
+    )
+    assert float(R.min()) == pytest.approx(-100.0, abs=1e-6)
+    assert float(R.max()) == pytest.approx(a_bent_coil.maximum_outer_radius, abs=1e-6)

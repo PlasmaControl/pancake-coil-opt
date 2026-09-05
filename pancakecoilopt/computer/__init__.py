@@ -3,6 +3,7 @@ from .basics import (
     compute_curve,
     compute_source_points_at_right_half_for_bent_coil,
     find_z_bound_for_a_given_arc_length,
+    generate_a_grid,
     solve_f_of_x_equals_0_with_finite_differences,
     solve_f_of_x_equals_0_with_grad,
 )
@@ -28,6 +29,7 @@ __all__ = [
     "compute_something_in_the_whole_grid",
     "compute_source_points_at_right_half_for_bent_coil",
     "find_z_bound_for_a_given_arc_length",
+    "generate_a_grid",
     "physics",
     "schemas",
     "solve_f_of_x_equals_0_with_finite_differences",

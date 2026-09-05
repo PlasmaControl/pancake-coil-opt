@@ -20,13 +20,19 @@ downstream:
 """
 
 import functools
+import math
 from collections.abc import Callable
+from typing import Literal
 
 import jax
 import jax.numpy as jnp
 import jax.scipy.integrate
+import numpy as np
 from jax import Array
 from jax.typing import ArrayLike
+from numpy.typing import NDArray
+
+from . import schemas
 
 
 @jax.jit
@@ -231,3 +237,77 @@ def compute_source_points_at_right_half_for_bent_coil(
     dA = total_area / (nr * nz)
 
     return r_points, z_points, J_source, dA
+
+
+def _expand_to_at_least(
+    small_value: float, big_value: float, maximum_small_value: float,
+    minimum_big_value: float,
+) -> tuple[float, float]:
+    """Widen a requested (small_value, big_value) range so it covers at
+    least [maximum_small_value, minimum_big_value] — used to guarantee a
+    plot/grid range always contains the whole coil: a narrower request is
+    silently expanded back out to the coil's own extent, while a wider
+    request (going beyond the coil) is honored as-is.
+    """
+    small_value = min(small_value, maximum_small_value)
+    big_value = max(big_value, minimum_big_value)
+    return small_value, big_value
+
+
+def compute_r_z_range(
+    pancake_coil: "schemas.PancakeCoil",
+    r_range: tuple[float, float] | None = None,
+    z_range: tuple[float, float] | None = None,
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    """The (r, z) extent to grid a coil over: by default, symmetric about
+    both axes and just big enough to contain the whole coil
+    (+/- maximum_outer_radius, +/- half of maximum_height).
+
+    An explicit r_range/z_range can zoom OUT beyond that (e.g. to see the
+    field further from the coil), but never IN — a narrower request would
+    crop part of the coil out of the grid, so it's silently widened back to
+    the coil's own default extent instead of honored as-is.
+    """
+    default_r_end = pancake_coil.maximum_outer_radius
+    default_r_start = -default_r_end
+    if r_range is not None:
+        r_start, r_end = _expand_to_at_least(
+            r_range[0], r_range[1], default_r_start, default_r_end
+        )
+    else:
+        r_start, r_end = default_r_start, default_r_end
+
+    default_z_end = pancake_coil.maximum_height / 2
+    default_z_start = -default_z_end
+    if z_range is not None:
+        z_start, z_end = _expand_to_at_least(
+            z_range[0], z_range[1], default_z_start, default_z_end
+        )
+    else:
+        z_start, z_end = default_z_start, default_z_end
+
+    return (r_start, r_end), (z_start, z_end)
+
+
+def generate_a_grid(
+    pancake_coil: "schemas.PancakeCoil",
+    nr: int,
+    nz: int | None = None,
+    r_range: tuple[float, float] | None = None,
+    z_range: tuple[float, float] | None = None,
+    numpy_or_jax: Literal["numpy", "jax"] = "jax",
+) -> tuple[Array, Array] | tuple[NDArray, NDArray]:
+    """A mesh grid (R, Z) covering the coil (or an explicit r_range/z_range),
+    for field evaluation and plotting. If nz isn't given, it's chosen to
+    keep grid cells roughly square given the aspect ratio of the range.
+    """
+    (r_start, r_end), (z_start, z_end) = compute_r_z_range(
+        pancake_coil, r_range, z_range
+    )
+    if nz is None:
+        nz = math.ceil((z_end - z_start) / (r_end - r_start) * nr)
+
+    module = np if numpy_or_jax == "numpy" else jnp
+    r = module.linspace(r_start, r_end, nr)
+    z = module.linspace(z_start, z_end, nz)
+    return module.meshgrid(r, z, indexing="xy")
