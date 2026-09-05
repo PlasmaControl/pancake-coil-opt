@@ -20,8 +20,8 @@ downstream:
      built next) sums over.
 """
 
-from collections.abc import Callable
 import functools
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
