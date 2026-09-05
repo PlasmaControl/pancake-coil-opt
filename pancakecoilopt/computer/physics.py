@@ -365,6 +365,7 @@ CoilScalarVariableName = Literal[
     "J_critical",
     "angle_between_field_and_tape",
     "angle_between_field_and_tape_scaled",
+    "angle_between_field_and_tape_scaled_with_central_magnetic_field_magnitude",
     "lorentz_force_density_magnitude",
 ]
 ScalarVariableName = NormalScalarVariableName | CoilScalarVariableName
@@ -402,6 +403,17 @@ computers: dict[VariableName, tuple[Callable, dict[str, str | bool] | None]] = {
         },
     ),
     "angle_between_field_and_tape_scaled": (
+        compute_angle_between_field_and_tape_at_a_point_from_source_points,
+        {
+            "scale_with_respect_to_magnetic_field_magnitude": True,
+            "curve_parameters": "curve_parameters",
+        },
+    ),
+    # Alias with the verbose name the Objective naming convention produces
+    # for "minimize_average_angle_between_field_and_tape_scaled_with_central_
+    # magnetic_field_magnitude" (optimizer/schemas.py) -- same computation as
+    # "angle_between_field_and_tape_scaled" above, just spelled out in full.
+    "angle_between_field_and_tape_scaled_with_central_magnetic_field_magnitude": (
         compute_angle_between_field_and_tape_at_a_point_from_source_points,
         {
             "scale_with_respect_to_magnetic_field_magnitude": True,

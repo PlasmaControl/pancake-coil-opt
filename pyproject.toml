@@ -14,6 +14,7 @@ dependencies = [
     "scipy==1.15.2",
     "jax==0.6.0",
     "jaxellip==0.0.1",
+    "ruamel.yaml==0.18.10",
 ]
 classifiers = ["Intended Audience :: Science/Research"]
 
