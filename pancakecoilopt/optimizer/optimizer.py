@@ -1,9 +1,9 @@
 """Build an objective function from an optimization-settings object, and run
 `scipy.optimize.minimize` over a bent coil's curve parameters.
 
-Only bent coils are handled so far (StraightPancakeCoil's per-pancake
-inner-radius/turn-count parameterization, the maximum-outer-radius
-constraint, and plotting integration are deferred to a later step).
+Only bent coils are handled (StraightPancakeCoil's per-pancake inner-radius/
+turn-count parameterization is out of scope for this rebuild). Plotting
+integration is deferred to a later step.
 """
 
 import datetime
@@ -358,6 +358,35 @@ def optimize(
             return numpy.nan_to_num(g, nan=0.0, posinf=0.0, neginf=0.0)
 
         minimize_kwargs["jac"] = jac
+
+    # Optional cap on the coil's outer radius: without it, an objective that
+    # rewards a bigger/stronger field (e.g. field efficiency, central field)
+    # can bulge the coil's ends outward without bound, since nothing else in
+    # the problem penalizes size directly.
+    max_outer_radius = constraints.maximum_outer_radius
+    if max_outer_radius is not None:
+        if solver == "Nelder-Mead":
+            message = (
+                "maximum_outer_radius constraint requires a constraint-capable"
+                " solver ('COBYQA' or 'trust-constr'); 'Nelder-Mead' does not"
+                " support constraints."
+            )
+            raise ValueError(message)
+
+        arc_length = pancake_coil.total_vertical_arc_length
+        coil_width = pancake_coil.width
+
+        @jax.jit
+        def outer_radius(parameters):
+            z_top = computer.find_z_bound_for_a_given_arc_length(
+                arc_length, parameters
+            )
+            z_grid = jnp.linspace(-z_top, z_top, 256)
+            return jnp.max(computer.compute_curve(z_grid, parameters)) + coil_width
+
+        minimize_kwargs["constraints"] = scipy.optimize.NonlinearConstraint(
+            lambda x: float(outer_radius(jnp.asarray(x))), 0.0, max_outer_radius
+        )
 
     start_time = time.time()
     scipy_result = scipy.optimize.minimize(objective, initial_parameters, **minimize_kwargs)

@@ -290,3 +290,40 @@ def test_optimize_end_to_end_with_a_field_inhomogeneity_objective(
     settings = _settings(["minimize_field_inhomogeneity"])
     result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
     assert result.optimized_objective_value <= result.original_objective_value + 1e-6
+
+
+def test_max_outer_radius_constraint_rejects_nelder_mead(a_small_bent_coil, tmp_path):
+    settings = _settings(
+        ["maximize_central_magnetic_field_magnitude"],
+        constraints=schemas.OptimizationConstraints(
+            minimum_central_inner_radius=0.05,
+            maximum_central_inner_radius=0.2,
+            maximum_outer_radius=0.15,
+        ),
+    )
+    with pytest.raises(ValueError, match="Nelder-Mead"):
+        optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+
+
+def test_max_outer_radius_constraint_is_enforced_by_a_constrained_solver(
+    a_small_bent_coil, tmp_path
+):
+    # Cap the outer radius at exactly the coil's own starting size: whatever
+    # the objective would otherwise want, the optimized coil's outer radius
+    # -- recomputed independently via BentPancakeCoil.maximum_outer_radius,
+    # not the constraint function's own internal formula -- must not exceed it.
+    initial_outer_radius = a_small_bent_coil.maximum_outer_radius
+    settings = _settings(
+        ["maximize_central_magnetic_field_magnitude"],
+        solver="COBYQA",
+        constraints=schemas.OptimizationConstraints(
+            minimum_central_inner_radius=0.05,
+            maximum_central_inner_radius=0.2,
+            maximum_outer_radius=initial_outer_radius,
+        ),
+    )
+    result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+    assert (
+        result.optimized_pancake_coil.maximum_outer_radius
+        <= initial_outer_radius + 1e-3
+    )
