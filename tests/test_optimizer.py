@@ -130,3 +130,163 @@ def test_optimize_populates_coil_results_with_finite_values(
         assert coil_result.average_angle_between_field_and_tape is not None
         assert coil_result.average_J_critical > 0
         assert coil_result.absolute_average_magnetic_field_magnitude_squared > 0
+
+
+def _perturbed_parameters(coil):
+    # A curve distinct from the coil's own initial parameters, so
+    # "_on_grid"/"_on_axis" objective checks aren't trivially self-consistent
+    # (e.g. a B2-on-grid ratio of exactly 1.0 at the initial point either way).
+    return jnp.array(coil.curve_parameters) + jnp.array([0.01, 0.05, 0.0])
+
+
+def _source_points_for(coil, settings, parameters):
+    nr, nz = optimizer.compute_nr_and_nz(coil, settings)
+    current_density = computer.compute_maximum_possible_current_density(
+        parameters, coil.total_vertical_arc_length, coil.width, nr, nz,
+        coil.current_density,
+    )
+    return computer.compute_source_points_at_right_half_for_bent_coil(
+        parameters, coil.total_vertical_arc_length, coil.width, current_density,
+        nr, nz,
+    )
+
+
+def test_average_B2_on_grid_objective_matches_manual_computation(a_small_bent_coil):
+    settings = _settings(["maximize_average_magnetic_field_magnitude_squared_on_grid"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    # Reference <B^2>, from the *original* (unperturbed) coil.
+    r0, z0, J0, dA0 = _source_points_for(
+        a_small_bent_coil, settings, jnp.array(a_small_bent_coil.curve_parameters)
+    )
+    R, Z = computer.generate_a_grid(a_small_bent_coil, nr=32, numpy_or_jax="numpy")
+    R, Z = jnp.asarray(R), jnp.asarray(Z)
+    B2_ref_grid = computer.compute_something_in_the_whole_grid(
+        R, Z, r0, z0, J0, dA0, "magnetic_field_magnitude_squared",
+        jnp.array(a_small_bent_coil.curve_parameters),
+    )
+    B2_ref = jnp.sum(B2_ref_grid * jnp.abs(R)) / (jnp.sum(jnp.abs(R)) + 1e-30)
+
+    # <B^2> at the perturbed parameters.
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    B2_grid = computer.compute_something_in_the_whole_grid(
+        R, Z, r_source, z_source, J_source, dA,
+        "magnetic_field_magnitude_squared", parameters,
+    )
+    B2 = jnp.sum(B2_grid * jnp.abs(R)) / (jnp.sum(jnp.abs(R)) + 1e-30)
+
+    expected = -float(B2 / B2_ref)
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_average_on_axis_objective_matches_manual_computation(a_small_bent_coil):
+    settings = _settings(["maximize_average_magnetic_field_magnitude_on_axis"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    z_extent = a_small_bent_coil.maximum_height / 2
+    Z_on_axis = jnp.linspace(-z_extent, z_extent, 64)
+    R_axis = jnp.zeros_like(Z_on_axis)
+    values = computer.compute_something_in_the_whole_grid(
+        R_axis, Z_on_axis, r_source, z_source, J_source, dA,
+        "magnetic_field_magnitude", parameters,
+    )
+    expected = -float(jnp.mean(values))
+
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_field_efficiency_objective_matches_manual_computation(a_small_bent_coil):
+    settings = _settings(["maximize_field_efficiency_on_grid"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    R, Z = computer.generate_a_grid(a_small_bent_coil, nr=32, numpy_or_jax="numpy")
+    R, Z = jnp.asarray(R), jnp.asarray(Z)
+    b2 = computer.compute_something_in_the_whole_grid(
+        R, Z, r_source, z_source, J_source, dA,
+        "magnetic_field_magnitude_squared", parameters,
+    )
+    average_b2 = jnp.sum(b2 * jnp.abs(R)) / (jnp.sum(jnp.abs(R)) + 1e-30)
+
+    z_top = computer.find_z_bound_for_a_given_arc_length(
+        a_small_bent_coil.total_vertical_arc_length, parameters
+    )
+    z_grid = jnp.linspace(-z_top, z_top, 128)
+    outer_radius = (
+        jnp.max(computer.compute_curve(z_grid, parameters)) + a_small_bent_coil.width
+    )
+    expected = -float(average_b2 / outer_radius)
+
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_field_inhomogeneity_objective_matches_manual_computation(a_small_bent_coil):
+    settings = _settings(["minimize_field_inhomogeneity"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    radius = 0.2 * float(a_small_bent_coil.curve_parameters[0])
+    r_lin = jnp.linspace(0.0, radius, 9)
+    z_lin = jnp.linspace(-radius, radius, 17)
+    R, Z = jnp.meshgrid(r_lin, z_lin)
+    inside_region = (R**2 + Z**2) <= radius**2
+    W = R * inside_region
+
+    b = computer.compute_something_in_the_whole_grid(
+        R, Z, r_source, z_source, J_source, dA, "magnetic_field_magnitude", parameters
+    )
+    weight_sum = jnp.sum(W) + 1e-30
+    mean_field = jnp.sum(W * b) / weight_sum
+    variance = jnp.sum(W * (b - mean_field) ** 2) / weight_sum
+    expected = float(jnp.sqrt(variance + 1e-30) / (mean_field + 1e-30))
+
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_field_inhomogeneity_respects_an_explicit_region_size(a_small_bent_coil):
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    small_region = _settings(
+        ["minimize_field_inhomogeneity"], homogeneity_region_half_size=0.005
+    )
+    large_region = _settings(
+        ["minimize_field_inhomogeneity"], homogeneity_region_half_size=0.05
+    )
+
+    small_value = optimizer.objective_maker(a_small_bent_coil, small_region)(parameters)
+    large_value = optimizer.objective_maker(a_small_bent_coil, large_region)(parameters)
+
+    # A bigger region should generally show more field variation (harder to
+    # keep uniform over a larger volume) -- not a strict theorem, but true
+    # for this coil/perturbation, and a good sanity check that region size
+    # actually changes the computation rather than being silently ignored.
+    assert float(large_value) != pytest.approx(float(small_value), rel=1e-3)
+
+
+def test_optimize_end_to_end_with_a_field_efficiency_objective(
+    a_small_bent_coil, tmp_path
+):
+    settings = _settings(["maximize_field_efficiency_on_grid"])
+    result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+    assert result.optimized_objective_value <= result.original_objective_value + 1e-6
+
+
+def test_optimize_end_to_end_with_a_field_inhomogeneity_objective(
+    a_small_bent_coil, tmp_path
+):
+    settings = _settings(["minimize_field_inhomogeneity"])
+    result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+    assert result.optimized_objective_value <= result.original_objective_value + 1e-6

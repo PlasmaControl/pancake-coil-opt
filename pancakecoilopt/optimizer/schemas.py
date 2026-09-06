@@ -8,10 +8,15 @@ names). This lets new objectives be added by combining an existing variable
 name with average/minimum/maximum/central, without writing a new function
 for each combination.
 
-Only the objectives that reduce over the coil's own source points (or its
-center point) are implemented so far — "on_grid"/"on_axis" objectives and
-the specialized field-efficiency/homogeneity objectives are deferred to a
-later step.
+Most objectives reduce over the coil's own source points (or its center
+point), but a variable name can also end in "_on_grid" (average over a
+field-evaluation grid spanning the whole coil, see computer.generate_a_grid)
+or "_on_axis" (average along the on-axis line r=0). Two further objectives
+are special-cased rather than name-parsed:
+"maximize_field_efficiency_on_grid" (grid-averaged B^2 per unit outer
+radius, so the optimizer improves field per unit size instead of just
+growing the winding) and "minimize_field_inhomogeneity" (relative field
+variation over a small central region — for NMR/MRI-style uniformity).
 """
 
 import datetime
@@ -32,6 +37,15 @@ Objective = Literal[
     "maximize_minimum_J_critical",
     "minimize_average_lorentz_force_density_magnitude",
     "minimize_maximum_lorentz_force_density_magnitude",
+    "maximize_average_magnetic_field_magnitude_squared_on_grid",
+    "maximize_average_magnetic_field_magnitude_on_axis",
+    # Size-normalized "field efficiency": grid-averaged B^2 divided by the
+    # coil's outer radius, so the optimizer improves field per unit size
+    # instead of just growing/spreading the winding.
+    "maximize_field_efficiency_on_grid",
+    # Field homogeneity for NMR/MRI-style magnets: relative spatial
+    # variation (std/mean) of |B| over a small central region.
+    "minimize_field_inhomogeneity",
 ]
 
 
@@ -67,6 +81,26 @@ class PancakeCoilOptimizationSettings(pydantic.BaseModel):
             " `objectives`. The (maximize/minimize-signed) objectives are summed"
             " weighted. Use this to balance objectives with very different scales."
             " Defaults to all 1.0."
+        ),
+    )
+    homogeneity_region_half_size: float | None = pydantic.Field(
+        default=None,
+        gt=0,
+        description=(
+            "Radius/half-size (in metres) of the central region over which"
+            " `minimize_field_inhomogeneity` measures field uniformity."
+            " Defaults to 0.2 x bore when unset. A larger region demands"
+            " uniformity over a bigger volume and is harder to achieve."
+        ),
+    )
+    homogeneity_region_shape: Literal["sphere", "cylinder"] = pydantic.Field(
+        default="sphere",
+        description=(
+            "Shape of the central region used by `minimize_field_inhomogeneity`."
+            " 'sphere' measures a spherical region of radius"
+            " `homogeneity_region_half_size`; 'cylinder' measures a cylindrical"
+            " region with that radius and half-height. Both are volume-weighted"
+            " by the revolved element r (cylindrical coordinates)."
         ),
     )
     constraints: OptimizationConstraints

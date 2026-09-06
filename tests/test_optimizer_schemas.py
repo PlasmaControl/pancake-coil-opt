@@ -39,6 +39,34 @@ def test_settings_reject_an_unknown_objective_name(settings_kwargs):
         schemas.PancakeCoilOptimizationSettings(**settings_kwargs)
 
 
+def test_settings_default_homogeneity_region_is_a_sphere_with_no_fixed_size(
+    settings_kwargs,
+):
+    settings_kwargs["objectives"] = ["minimize_field_inhomogeneity"]
+    settings = schemas.PancakeCoilOptimizationSettings(**settings_kwargs)
+    assert settings.homogeneity_region_half_size is None
+    assert settings.homogeneity_region_shape == "sphere"
+
+
+def test_settings_accept_an_explicit_cylindrical_homogeneity_region(settings_kwargs):
+    settings_kwargs["objectives"] = ["minimize_field_inhomogeneity"]
+    settings = schemas.PancakeCoilOptimizationSettings(
+        **settings_kwargs,
+        homogeneity_region_half_size=0.02,
+        homogeneity_region_shape="cylinder",
+    )
+    assert settings.homogeneity_region_half_size == 0.02
+    assert settings.homogeneity_region_shape == "cylinder"
+
+
+def test_settings_reject_a_non_positive_homogeneity_region_size(settings_kwargs):
+    settings_kwargs["objectives"] = ["minimize_field_inhomogeneity"]
+    with pytest.raises(pydantic.ValidationError):
+        schemas.PancakeCoilOptimizationSettings(
+            **settings_kwargs, homogeneity_region_half_size=0.0
+        )
+
+
 @pytest.fixture
 def a_bent_coil():
     return computer_schemas.BentPancakeCoil(
