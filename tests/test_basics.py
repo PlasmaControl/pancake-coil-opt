@@ -133,7 +133,7 @@ def test_generate_a_grid_covers_the_coil_by_default(a_bent_coil):
 
 
 def test_generate_a_grid_ignores_a_narrower_explicit_range(a_bent_coil):
-    # A range narrower than the coil's own extent is NOT honored -- the
+    # A range narrower than the coil's own extent is NOT honored. The
     # grid always covers at least the whole coil, silently widening a
     # too-small request back out to the coil's default extent.
     narrower_than_the_coil = (-0.001, 0.001)

@@ -4,10 +4,8 @@ the critical-current-density model for the HTS tape.
 The coil is discretized (basics.py) into a cloud of circular current loops:
 each source point (r_source, z_source) with current density J_phi represents
 a thin ring of current I = J_phi * dA at that (r, z). The total field at any
-point is the superposition of every ring's field — an exact closed form
-exists for a single current loop, in terms of complete elliptic integrals,
-so no discretization is needed on the field-evaluation side (only in how
-finely the coil itself is sliced into rings).
+point is the superposition of every ring's field. An exact closed form
+exists for a single current loop, in terms of complete elliptic integrals.
 """
 
 from collections.abc import Callable
@@ -36,23 +34,11 @@ def compute_magnetic_field_at_a_point_from_source_points(
     """Field (B_r, B_z) at (r, z) from a set of circular current loops, one
     per source point, each carrying current I = J_phi * dA.
 
-    For a single loop of radius a at z=0 carrying current I, the field at
-    (r, z) is (Simpson/Jackson's classic result, in terms of complete
-    elliptic integrals K and E of parameter k^2 = 4*a*r / ((a+r)^2 + z^2)):
-
-        B_z = mu_0*I / (2*pi*sqrt((a+r)^2+z^2)) *
-              [ K(k^2) + (a^2 - r^2 - z^2)/((a-r)^2+z^2) * E(k^2) ]
-        B_r = mu_0*I*z / (2*pi*r*sqrt((a+r)^2+z^2)) *
-              [ -K(k^2) + (a^2 + r^2 + z^2)/((a-r)^2+z^2) * E(k^2) ]
-
-    This function evaluates that formula for every source loop at once and
-    sums the contributions (superposition). `grid_spacing_squared = dA/4` is
-    added into every squared-distance term as a softening length: without
-    it, a field point that lands exactly on a source ring (a=r, z=z_source)
-    would divide by zero in `(a-r)^2+z^2`. Since dA already represents the
-    physical size of that ring's cross-section, `sqrt(dA)/2` is a natural
-    scale for how close is "on top of it" — the field is only sampled at
-    physically distinguishable points anyway.
+   `grid_spacing_squared = dA/4` is added into every squared-distance term 
+    as a softening length: without it, a field point that lands exactly on 
+    a source ring (a=r, z=z_source) would divide by zero in `(a-r)^2+z^2`. 
+    Since dA already represents the physical size of that ring's cross-section, 
+    `sqrt(dA)/2` is a natural scale.
 
     Args:
         r_source, z_source: Coordinates of each source ring.
@@ -89,7 +75,7 @@ def compute_magnetic_field_at_a_point_from_source_points(
         * ((r_source**2 - delta_z**2 - r**2) * ellip_E / common_denominator + ellip_K)
     )
 
-    # On-axis (r=0), B_r is 0 by symmetry — but the formula above divides by
+    # On-axis (r=0), B_r is 0 by symmetry, but the formula above divides by
     # r to get there, which would poison the gradient (0/0 in the unused
     # branch still propagates a NaN through reverse-mode autodiff even
     # though jnp.where discards its value). Substituting a dummy r_safe=1
@@ -160,7 +146,7 @@ def J_critical(
 
     Current-carrying capacity drops as the applied field grows, and drops
     faster when the field is more perpendicular to the tape's flat face than
-    parallel to it — `epsilon_theta` interpolates between those two cases
+    parallel to it. `epsilon_theta` interpolates between those two cases
     using `gamma_squared` (>1 means the perpendicular field is more
     damaging), and `(B/B_0)^alpha` with the `beta` power sets how sharply
     J_critical falls off with field strength.
@@ -218,7 +204,7 @@ def compute_angle_between_field_and_tape_at_a_point_from_source_points(
     scale_with_respect_to_magnetic_field_magnitude: bool = False,
 ) -> ArrayLike:
     """Acute angle (in [0, pi/2]) between the local field B(r,z) and the
-    tape's own direction at that height (the curve's tangent) — how
+    tape's own direction at that height (the curve's tangent): how
     perpendicular the field is to the tape, which is what drives
     field-dependent critical-current derating in J_critical.
 
@@ -231,7 +217,7 @@ def compute_angle_between_field_and_tape_at_a_point_from_source_points(
         r, z: The field point.
         curve_parameters: The curve the tape follows (for its tangent).
         scale_with_respect_to_magnetic_field_magnitude: If True, weight the
-            angle by |B(r,z)| / |B(0,0)| — a large angle far from the coil,
+            angle by |B(r,z)| / |B(0,0)|. A large angle far from the coil,
             where the field is negligible anyway, then contributes little.
 
     Returns:
@@ -316,7 +302,7 @@ def compute_lorentz_force_density_at_a_point_from_source_points(
     J_phi at an arbitrary field point isn't itself well-defined by the
     source points (they only carry current at discrete coil locations), so
     this looks up the current density of whichever source point is nearest
-    to (r, z) — meant to be called AT the coil's own source points (see
+    to (r, z), meant to be called AT the coil's own source points (see
     `compute_something_in_the_whole_coil`), where "nearest" is exact.
     """
     B_r, B_z = compute_magnetic_field_at_a_point_from_source_points(
@@ -347,16 +333,14 @@ def compute_lorentz_force_density_magnitude_at_a_point_from_source_points(
     return jnp.linalg.norm(jnp.array([f_r, f_z]))
 
 
-# --- Variable-name dispatch -------------------------------------------------
+# === Variable-name dispatch =================================================
 #
 # Every "compute ... at a point" function above shares the same first five
 # arguments (r_source, z_source, J_phi, dA, r, z) but differs in what extra
 # arguments it needs (curve_parameters for anything tape-angle-related,
 # nothing extra for the raw field). The dispatch table below lets calling
 # code select one of these functions by name instead of importing all of
-# them individually, which is what the optimizer and plotter (built next)
-# need: e.g. "give me a grid of magnetic_field_magnitude" without caring
-# which specific function that maps to.
+# them individually, which is what the optimizer and plotter need
 
 NormalScalarVariableName = Literal[
     "magnetic_field_magnitude", "magnetic_field_magnitude_squared"
@@ -376,11 +360,6 @@ VectorVariableName = NormalVectorVariableName | CoilVectorVariableName
 
 VariableName = VectorVariableName | ScalarVariableName
 
-# Each entry: (function to call, extra keyword arguments beyond
-# r_source/z_source/J_source/dA/r/z). An extra argument whose value is a
-# string is resolved from compute_something_at_a_point's own locals (i.e.
-# "pass through whatever curve_parameters I was given"); a literal bool is
-# passed as-is.
 computers: dict[VariableName, tuple[Callable, dict[str, str | bool] | None]] = {
     "magnetic_field": (compute_magnetic_field_at_a_point_from_source_points, None),
     "magnetic_field_magnitude": (
@@ -409,10 +388,6 @@ computers: dict[VariableName, tuple[Callable, dict[str, str | bool] | None]] = {
             "curve_parameters": "curve_parameters",
         },
     ),
-    # Alias with the verbose name the Objective naming convention produces
-    # for "minimize_average_angle_between_field_and_tape_scaled_with_central_
-    # magnetic_field_magnitude" (optimizer/schemas.py) -- same computation as
-    # "angle_between_field_and_tape_scaled" above, just spelled out in full.
     "angle_between_field_and_tape_scaled_with_central_magnetic_field_magnitude": (
         compute_angle_between_field_and_tape_at_a_point_from_source_points,
         {
@@ -466,7 +441,7 @@ def compute_something_in_multiple_points(
     curve_parameters: Array,
     what: VariableName,
 ) -> Array | tuple[Array, Array]:
-    """Same dispatch, vectorized (jax.vmap) over every (r, z) in R, Z — R and
+    """Same dispatch, vectorized (jax.vmap) over every (r, z) in R, Z: R and
     Z can be any shape (e.g. a 2D grid or the coil's own flat source-point
     arrays); the result is reshaped back to match.
     """
@@ -549,7 +524,7 @@ def compute_something_in_the_whole_coil(
     curve_parameters: Array,
 ) -> Array | tuple[Array, Array]:
     """Evaluate a coil-dependent quantity (J_critical, angle-to-tape,
-    Lorentz force) AT each of the coil's own source points — the only place
+    Lorentz force) AT each of the coil's own source points, the only place
     those quantities are physically meaningful given how they're computed
     (e.g. Lorentz force needs an exact, not nearest-neighbor, J_phi lookup).
     """
@@ -577,7 +552,7 @@ def compute_minimum_J_critical_of_the_whole_coil(
     )
 
 
-# --- Batched evaluation and the self-consistent current-density solve -----
+# === Batched evaluation and the self-consistent current-density solve =====
 #
 # Everything above vectorizes with a single jax.vmap: fine when the number
 # of source points times target points is modest, but the fully-vectorized
@@ -681,7 +656,7 @@ def compute_minimum_J_critical_field_batched(
 
     Unlike `compute_angle_between_field_and_tape_at_a_point_from_source_points`,
     the raw (unfolded) angle is used here without folding it into
-    [0, pi/2] — harmless, since J_critical only ever uses sin(angle)^2 and
+    [0, pi/2], harmless, since J_critical only ever uses sin(angle)^2 and
     cos(angle)^2, both already symmetric under angle -> pi - angle.
     """
 
@@ -720,20 +695,17 @@ def compute_maximum_possible_current_density(
     point on the coil, the field that current density itself produces
     doesn't push the local J_critical below that same current density.
 
-    This is a fixed-point problem — the field depends on the current
+    This is a fixed-point problem: the field depends on the current
     density, and the maximum allowable current density depends on the
-    field — solved by finding the root of
+    field. It is solved by finding the root of
     f(J) = J - min(J_critical over the coil, given field from J).
 
     The key simplification: Biot-Savart is linear in current density, and
     every source point here shares the same J. So the field at any
     candidate J is just J times the field from a *unit* current density
-    (J=1) — computed once outside the root-finding loop — rather than
+    (J=1), computed once outside the root-finding loop, rather than
     re-running the full Biot-Savart sum on every Newton iteration.
     """
-    # The current density returned here is discarded: only the geometry
-    # (r_source, z_source, dA) is needed, since the field is evaluated at a
-    # unit current density below and scaled from there.
     r_source, z_source, _initial_J_source, dA = (
         basics.compute_source_points_at_right_half_for_bent_coil(
             curve_parameters, total_arc_length, width, initial_current_density, nr, nz

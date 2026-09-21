@@ -1,20 +1,5 @@
 """Chunked/batched vmap: evaluate a function over many inputs without ever
 holding every input's intermediate activations in memory at once.
-
-physics.py's Biot-Savart kernel is naively vectorized with `jax.vmap`,
-computing every source-point (or grid-point) contribution in parallel. For a
-modest coil discretization that's fine, but a fine field grid or many
-thousand source rings can make the fully-vectorized intermediates exceed
-available memory. `vmap_chunked` gives the same result as `jax.vmap`, but
-processes the mapped axis `chunk_size` elements at a time.
-
-An earlier version of this project hand-rolled this chunking logic by
-borrowing NetKet's `_scanmap` machinery, which reaches into several private
-JAX internals (`jax._src.api_util.argnums_partial`,
-`jax._src.lax.control_flow.loops._batch_and_remainder`) that have no
-stability guarantee across JAX versions. Newer JAX exposes the same
-"batch a vmap through scan" behavior directly as the public `batch_size`
-argument to `jax.lax.map`, so that's used here instead.
 """
 
 from collections.abc import Callable
@@ -33,8 +18,8 @@ def vmap_chunked(
     `jax.lax.map`'s `batch_size`) instead of all at once.
 
     Only `in_axes` entries of 0 (this argument is mapped over) or None (this
-    argument is passed through unchanged to every call) are supported —
-    the only two cases physics.py's batched functions actually need.
+    argument is passed through unchanged to every call) are supported.
+    The only two cases physics.py's batched functions actually need.
     """
     if isinstance(in_axes, int):
         in_axes = (in_axes,)

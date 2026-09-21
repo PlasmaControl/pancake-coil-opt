@@ -1,6 +1,6 @@
 """Export any pydantic model to a human-readable YAML file.
 
-No domain dependencies on purpose — this is used to save optimization
+No domain dependencies on purpose: this is used to save optimization
 results, but doesn't need to know anything about coils or physics.
 """
 

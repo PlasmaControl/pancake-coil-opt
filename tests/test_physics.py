@@ -88,7 +88,7 @@ def test_magnitude_helpers_are_consistent_with_the_raw_components(single_loop):
 
 def test_field_superposes_linearly_across_multiple_loops():
     # Field from two loops together must equal the sum of each loop's field
-    # computed separately -- this is really testing that the vectorized sum
+    # computed separately. This is really testing that the vectorized sum
     # over source points does what it claims, not new physics.
     r_source = jnp.array([0.2, 0.3])
     z_source = jnp.array([0.1, -0.1])

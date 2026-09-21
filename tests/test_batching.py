@@ -9,7 +9,7 @@ def test_chunked_matches_plain_vmap_for_a_single_argument():
     xs = jnp.arange(10.0)
 
     unchunked = vmap_chunked(f, in_axes=0, chunk_size=None)(xs)
-    chunked = vmap_chunked(f, in_axes=0, chunk_size=3)(xs)  # 10 doesn't divide by 3
+    chunked = vmap_chunked(f, in_axes=0, chunk_size=3)(xs)
 
     assert jnp.allclose(chunked, unchunked)
     assert jnp.allclose(chunked, xs**2 + 1)

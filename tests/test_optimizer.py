@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 import pytest
+from scipy.constants import mu_0
 
 from pancakecoilopt import computer
 from pancakecoilopt.computer import schemas as computer_schemas
@@ -270,10 +271,135 @@ def test_field_inhomogeneity_respects_an_explicit_region_size(a_small_bent_coil)
     large_value = optimizer.objective_maker(a_small_bent_coil, large_region)(parameters)
 
     # A bigger region should generally show more field variation (harder to
-    # keep uniform over a larger volume) -- not a strict theorem, but true
+    # keep uniform over a larger volume), not a strict theorem, but true
     # for this coil/perturbation, and a good sanity check that region size
     # actually changes the computation rather than being silently ignored.
     assert float(large_value) != pytest.approx(float(small_value), rel=1e-3)
+
+
+def test_magnetic_energy_in_bore_objective_matches_manual_computation(
+    a_small_bent_coil,
+):
+    settings = _settings(["maximize_magnetic_energy_in_bore"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    z_top = computer.find_z_bound_for_a_given_arc_length(
+        a_small_bent_coil.total_vertical_arc_length, parameters
+    )
+    bore_grid_nr, bore_grid_nz = 32, 64
+    dz = 2 * z_top / bore_grid_nz
+    z_centers = jnp.linspace(-z_top + dz / 2, z_top - dz / 2, bore_grid_nz)
+    r_inner_at_z = computer.compute_curve(jnp.abs(z_centers), parameters)
+    dr_per_row = r_inner_at_z / bore_grid_nr
+    r_offsets = jnp.arange(bore_grid_nr) + 0.5
+    R = dr_per_row[:, None] * r_offsets[None, :]
+    Z = jnp.broadcast_to(z_centers[:, None], R.shape)
+    b2 = computer.compute_something_in_the_whole_grid(
+        R, Z, r_source, z_source, J_source, dA,
+        "magnetic_field_magnitude_squared", parameters,
+    )
+    energy_density = b2 / (2 * mu_0)
+    dV = 2 * jnp.pi * R * dr_per_row[:, None] * dz
+    expected = -float(jnp.sum(energy_density * dV))
+
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_magnetic_energy_in_bore_stays_within_the_actual_bore(a_small_bent_coil):
+    # At every z, the evaluation grid's outermost sample must stay strictly
+    # inside r_inner(z) (never at or past the winding's own inner surface).
+    # Otherwise, the "bore" integral would clip into the conductor, where the
+    # Biot-Savart field from a coarse set of discrete source loops isn't a
+    # physically meaningful approximation.
+    parameters = _perturbed_parameters(a_small_bent_coil)
+    z_top = computer.find_z_bound_for_a_given_arc_length(
+        a_small_bent_coil.total_vertical_arc_length, parameters
+    )
+    bore_grid_nr, bore_grid_nz = 32, 64
+    dz = 2 * z_top / bore_grid_nz
+    z_centers = jnp.linspace(-z_top + dz / 2, z_top - dz / 2, bore_grid_nz)
+    r_inner_at_z = computer.compute_curve(jnp.abs(z_centers), parameters)
+    dr_per_row = r_inner_at_z / bore_grid_nr
+    r_offsets = jnp.arange(bore_grid_nr) + 0.5
+    R = dr_per_row[:, None] * r_offsets[None, :]
+
+    assert bool(jnp.all(R < r_inner_at_z[:, None]))
+
+
+def test_optimize_end_to_end_with_a_magnetic_energy_in_bore_objective(
+    a_small_bent_coil, tmp_path
+):
+    settings = _settings(["maximize_magnetic_energy_in_bore"])
+    result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+    assert result.optimized_objective_value <= result.original_objective_value + 1e-6
+
+
+def test_field_inhomogeneity_in_bore_objective_matches_manual_computation(
+    a_small_bent_coil,
+):
+    settings = _settings(["minimize_field_inhomogeneity_in_bore"])
+    objective = optimizer.objective_maker(a_small_bent_coil, settings)
+    parameters = _perturbed_parameters(a_small_bent_coil)
+
+    r_source, z_source, J_source, dA = _source_points_for(
+        a_small_bent_coil, settings, parameters
+    )
+    z_top = computer.find_z_bound_for_a_given_arc_length(
+        a_small_bent_coil.total_vertical_arc_length, parameters
+    )
+    bore_grid_nr, bore_grid_nz = 32, 64
+    dz = 2 * z_top / bore_grid_nz
+    z_centers = jnp.linspace(-z_top + dz / 2, z_top - dz / 2, bore_grid_nz)
+    r_inner_at_z = computer.compute_curve(jnp.abs(z_centers), parameters)
+    dr_per_row = r_inner_at_z / bore_grid_nr
+    r_offsets = jnp.arange(bore_grid_nr) + 0.5
+    R = dr_per_row[:, None] * r_offsets[None, :]
+    Z = jnp.broadcast_to(z_centers[:, None], R.shape)
+    b = computer.compute_something_in_the_whole_grid(
+        R, Z, r_source, z_source, J_source, dA, "magnetic_field_magnitude", parameters
+    )
+    weight_sum = jnp.sum(R) + 1e-30
+    mean_field = jnp.sum(R * b) / weight_sum
+    variance = jnp.sum(R * (b - mean_field) ** 2) / weight_sum
+    expected = float(jnp.sqrt(variance + 1e-30) / (mean_field + 1e-30))
+
+    assert float(objective(parameters)) == pytest.approx(expected, rel=1e-4)
+
+
+def test_field_inhomogeneity_in_bore_differs_from_the_small_central_region_version(
+    a_small_bent_coil,
+):
+    # Same underlying std/mean(|B|) formula as minimize_field_inhomogeneity,
+    # but volume-weighted over the WHOLE bore instead of a small central
+    # region (default 20% of the bore radius). These should generally
+    # disagree, since a shape that's uniform right at the center can still
+    # vary a lot further out in the bore, and vice versa. Not a strict
+    # theorem, but true for this coil/perturbation, and a good sanity check
+    # that the two objectives aren't secretly computing the same thing.
+    parameters = _perturbed_parameters(a_small_bent_coil)
+    small_region_settings = _settings(["minimize_field_inhomogeneity"])
+    whole_bore_settings = _settings(["minimize_field_inhomogeneity_in_bore"])
+
+    small_region_value = optimizer.objective_maker(a_small_bent_coil, small_region_settings)(
+        parameters
+    )
+    whole_bore_value = optimizer.objective_maker(a_small_bent_coil, whole_bore_settings)(
+        parameters
+    )
+
+    assert float(whole_bore_value) != pytest.approx(float(small_region_value), rel=1e-3)
+
+
+def test_optimize_end_to_end_with_a_field_inhomogeneity_in_bore_objective(
+    a_small_bent_coil, tmp_path
+):
+    settings = _settings(["minimize_field_inhomogeneity_in_bore"])
+    result = optimizer.optimize(a_small_bent_coil, settings, tmp_path)
+    assert result.optimized_objective_value <= result.original_objective_value + 1e-6
 
 
 def test_optimize_end_to_end_with_a_field_efficiency_objective(
@@ -309,9 +435,9 @@ def test_max_outer_radius_constraint_is_enforced_by_a_constrained_solver(
     a_small_bent_coil, tmp_path
 ):
     # Cap the outer radius at exactly the coil's own starting size: whatever
-    # the objective would otherwise want, the optimized coil's outer radius
-    # -- recomputed independently via BentPancakeCoil.maximum_outer_radius,
-    # not the constraint function's own internal formula -- must not exceed it.
+    # the objective would otherwise want, the optimized coil's outer radius,
+    # recomputed independently via BentPancakeCoil.maximum_outer_radius,
+    # not the constraint function's own internal formula, must not exceed it.
     initial_outer_radius = a_small_bent_coil.maximum_outer_radius
     settings = _settings(
         ["maximize_central_magnetic_field_magnitude"],

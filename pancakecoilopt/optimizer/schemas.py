@@ -7,16 +7,6 @@ variable_name="magnetic_field_magnitude" (one of physics.py's dispatch
 names). This lets new objectives be added by combining an existing variable
 name with average/minimum/maximum/central, without writing a new function
 for each combination.
-
-Most objectives reduce over the coil's own source points (or its center
-point), but a variable name can also end in "_on_grid" (average over a
-field-evaluation grid spanning the whole coil, see computer.generate_a_grid)
-or "_on_axis" (average along the on-axis line r=0). Two further objectives
-are special-cased rather than name-parsed:
-"maximize_field_efficiency_on_grid" (grid-averaged B^2 per unit outer
-radius, so the optimizer improves field per unit size instead of just
-growing the winding) and "minimize_field_inhomogeneity" (relative field
-variation over a small central region — for NMR/MRI-style uniformity).
 """
 
 import datetime
@@ -39,13 +29,11 @@ Objective = Literal[
     "minimize_maximum_lorentz_force_density_magnitude",
     "maximize_average_magnetic_field_magnitude_squared_on_grid",
     "maximize_average_magnetic_field_magnitude_on_axis",
-    # Size-normalized "field efficiency": grid-averaged B^2 divided by the
-    # coil's outer radius, so the optimizer improves field per unit size
-    # instead of just growing/spreading the winding.
     "maximize_field_efficiency_on_grid",
-    # Field homogeneity for NMR/MRI-style magnets: relative spatial
-    # variation (std/mean) of |B| over a small central region.
+    "maximize_magnetic_energy_in_bore",
+    "maximize_average_magnetic_field_magnitude_in_bore",
     "minimize_field_inhomogeneity",
+    "minimize_field_inhomogeneity_in_bore",
 ]
 
 
@@ -67,6 +55,20 @@ class OptimizationConstraints(pydantic.BaseModel):
             "Optional cap on the coil's maximum outer radius (max over z of"
             " r(z) + width). Keeps the winding within a buildable envelope."
             " Requires a constraint-capable solver ('COBYQA' or 'trust-constr')."
+        ),
+    )
+    minimum_inner_radius: float | None = pydantic.Field(
+        default=None,
+        gt=0,
+        description=(
+            "Optional floor on the coil's inner radius over the WHOLE curve"
+            " (min over z of r(z)), not just at the center like"
+            " minimum_central_inner_radius. Without this, only r(0) is"
+            " bounded. The higher-order curve coefficients (bounded only to"
+            " [-2, 2] each) can still drive r(z) toward or through 0 away from"
+            " z=0, letting the two mirrored halves of the winding touch or"
+            " cross. Requires a constraint-capable solver ('COBYQA' or"
+            " 'trust-constr')."
         ),
     )
 
@@ -189,8 +191,8 @@ class OptimizationResult(pydantic.BaseModel):
 
         if len(full_order) != len(all_fields):
             message = (
-                "priority_order contains a key not present on this model --"
-                " keep it in sync with OptimizationResult's fields."
+                "priority_order contains a key not present on this model."
+                " Keep it in sync with OptimizationResult's fields."
             )
             raise ValueError(message)
 

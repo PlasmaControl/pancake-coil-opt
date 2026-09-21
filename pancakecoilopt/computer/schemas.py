@@ -8,7 +8,7 @@ between them. Two coil shapes are modeled:
     follows the polynomial curve r=f(z) from basics.py. The stack of
     pancakes is treated as one solid radial "width" of tape.
   - StraightPancakeCoil: a stack of ordinary flat pancakes, each with its own
-    inner radius and turn count — no curve, radius is constant within each
+    inner radius and turn count: no curve, radius is constant within each
     pancake.
 
 These are pydantic models so that inputs get validated (e.g. positive
@@ -40,7 +40,7 @@ class PancakeCoilBase(pydantic.BaseModel):
 
     # Set by the optimizer after solving for the self-consistent current
     # density (the density at which the coil's peak field-dependent critical
-    # current is reached) — not a design input, just a place to record the
+    # current is reached), not a design input, just a place to record the
     # result once known.
     effective_current_density: float | None = None
 
@@ -56,7 +56,7 @@ class PancakeCoilBase(pydantic.BaseModel):
     @property
     def total_vertical_arc_length(self) -> float:
         """Total tape length needed to stack every pancake with the required
-        separation between them — i.e. the coil's total height measured
+        separation between them, i.e. the coil's total height measured
         along the winding, not straight-line height.
         """
         return (

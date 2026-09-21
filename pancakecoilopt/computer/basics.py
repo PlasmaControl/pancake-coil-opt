@@ -6,17 +6,8 @@ radius is allowed to vary along the coil's height (z), tracing out a curve
     r = f(z) = A + B*z^2 + C*z^4 + D*z^6 + ...
 
 Only even powers of z are used, so the curve is symmetric about z=0 (the
-coil's midplane) — the winding radius at +z equals the radius at -z. The
-coefficients (A, B, C, ...) are exactly the free parameters an optimizer is
-allowed to vary.
-
-Everything here works with that one curve and produces two things needed
-downstream:
-  1. Its arc length (how much conductor tape is needed to trace it), and the
-     inverse of that (given a target tape length, how tall is the coil?).
-  2. A cloud of discrete (r, z) "source points" approximating the coil's
-     right-half cross-section, each carrying a current density and an area
-     element — the raw input the Biot-Savart field calculation sums over.
+coil's midplane). The coefficients (A, B, C, ...) are exactly the free 
+parameters an optimizer is allowed to vary.
 """
 
 import functools
@@ -68,7 +59,7 @@ def compute_curve_unit_tangent(z: Array, curve_parameters: Array) -> Array:
     """Unit tangent vector (dr, dz)/|...| to the curve at each z.
 
     Needed later to measure the angle between the local magnetic field and
-    the HTS tape's own direction — critical current drops sharply when the
+    the HTS tape's own direction: critical current drops sharply when the
     field is more perpendicular to the tape.
     """
     dr_over_dz = compute_curve_derivative(z, curve_parameters)
@@ -95,11 +86,11 @@ def compute_arc_length(z_top: float, curve_parameters: Array) -> Array:
 
     There's no closed-form antiderivative for a general even polynomial, so
     this integrates numerically (trapezoid rule on 400 points spanning the
-    full [0, z_top] range — `endpoint=True` matters here: dropping the last
+    full [0, z_top] range; `endpoint=True` matters here: dropping the last
     sample would silently shrink the integration domain and bias every
     arc length low). Negative z_top gives a negative length, so
     `2 * compute_arc_length(z_top, ...)` matches the total conductor length
-    from -z_top to z_top regardless of z_top's sign — used by the Newton
+    from -z_top to z_top regardless of z_top's sign, used by the Newton
     solve below.
     """
     z_vals = jnp.linspace(0, jnp.abs(z_top), 400, endpoint=True)
@@ -114,7 +105,7 @@ def solve_f_of_x_equals_0_with_grad(
     f: Callable[[Array], Array], x0: float, iterations: int = 10
 ) -> ArrayLike:
     """Newton's method: x_{n+1} = x_n - f(x_n)/f'(x_n), for a fixed number of
-    steps (no convergence check — `iterations` is chosen generously instead,
+    steps (no convergence check: `iterations` is chosen generously instead,
     since this needs to run inside jax.jit/vmap where loop counts must be
     static). f'(x) comes from autodiff (`jax.grad`) rather than a
     hand-derived formula, so `f` can be swapped out freely.
@@ -143,14 +134,8 @@ def solve_f_of_x_equals_0_with_finite_differences(
     proven more numerically robust in practice.
     """
     f = jax.jit(f)
-
-    # Step size ~1e-3 relative to x0. A fixed absolute step (like x0/1e7)
-    # underflows float32 precision for the large x0 values this solves for
-    # in practice (current densities ~1e7): the central difference then
-    # subtracts two nearly-equal floats, and catastrophic cancellation
-    # leaves a near-zero or garbage derivative, sending Newton's step to
-    # NaN. A relative step avoids that regardless of x0's scale.
-    step_size = jnp.abs(x0) * 1e-3 + 1e-12
+    relative_step = 1e-3 if jnp.finfo(jnp.asarray(x0).dtype).bits <= 32 else 6e-6
+    step_size = jnp.abs(x0) * relative_step + 1e-12
 
     @jax.jit
     def grad_f(x):
@@ -175,7 +160,7 @@ def find_z_bound_for_a_given_arc_length(
     """Invert compute_arc_length: given a total conductor length, find the z
     such that the curve from -z to z has exactly that length. This is how a
     coil's height is determined from a fixed tape length rather than the
-    other way around — an optimizer varying the curve shape (A, B, C, ...)
+    other way around. An optimizer varying the curve shape (A, B, C, ...)
     should not also need to independently pick a consistent height.
     """
 
@@ -244,7 +229,7 @@ def _expand_to_at_least(
     minimum_big_value: float,
 ) -> tuple[float, float]:
     """Widen a requested (small_value, big_value) range so it covers at
-    least [maximum_small_value, minimum_big_value] — used to guarantee a
+    least [maximum_small_value, minimum_big_value], used to guarantee a
     plot/grid range always contains the whole coil: a narrower request is
     silently expanded back out to the coil's own extent, while a wider
     request (going beyond the coil) is honored as-is.
@@ -264,9 +249,9 @@ def compute_r_z_range(
     (+/- maximum_outer_radius, +/- half of maximum_height).
 
     An explicit r_range/z_range can zoom OUT beyond that (e.g. to see the
-    field further from the coil), but never IN — a narrower request would
+    field further from the coil), but never IN. A narrower request would
     crop part of the coil out of the grid, so it's silently widened back to
-    the coil's own default extent instead of honored as-is.
+    the coil's own default extent.
     """
     default_r_end = pancake_coil.maximum_outer_radius
     default_r_start = -default_r_end

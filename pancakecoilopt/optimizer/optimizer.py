@@ -1,9 +1,5 @@
 """Build an objective function from an optimization-settings object, and run
 `scipy.optimize.minimize` over a bent coil's curve parameters.
-
-Only bent coils are handled (StraightPancakeCoil's per-pancake inner-radius/
-turn-count parameterization is out of scope for this rebuild). Plotting
-integration is deferred to a later step.
 """
 
 import datetime
@@ -18,6 +14,7 @@ import numpy
 import scipy.optimize
 from jax import Array
 from jax.typing import ArrayLike
+from scipy.constants import mu_0
 
 from .. import computer, reporter
 from . import schemas
@@ -78,8 +75,7 @@ def objective_maker(
     objectives = pancake_coil_optimization_settings.objectives
 
     # A "_on_grid" objective averages over a field-evaluation grid spanning
-    # the whole coil, built once here (not per-objective, and not inside the
-    # jitted objective itself) so every "_on_grid" objective shares the same
+    # the whole coil, built once here so every "_on_grid" objective shares the same
     # fixed evaluation points as the shape is optimized.
     RZ_on_grid: tuple[Array, Array] | None = None
     if any(objective.endswith("_on_grid") for objective in objectives):
@@ -87,7 +83,7 @@ def objective_maker(
         RZ_on_grid = (jnp.asarray(R_np), jnp.asarray(Z_np))
 
     # A "_on_axis" objective averages along the on-axis (r=0) line, spanning
-    # the initial coil's half-height -- also built once, so the averaging
+    # the initial coil's half-height. Also built once, so the averaging
     # domain stays fixed rather than shrinking/growing with the shape.
     Z_on_axis: Array | None = None
     if any(objective.endswith("_on_axis") for objective in objectives):
@@ -97,7 +93,7 @@ def objective_maker(
     # A small central region near (r=0, z=0), for "minimize_field_inhomogeneity".
     # Sampling a box and keeping only the points inside the selected region
     # (sphere or cylinder), weighted by the revolved (cylindrical) volume
-    # element 2*pi*r*dr*dz -- the constant 2*pi*dr*dz cancels in a weighted
+    # element 2*pi*r*dr*dz. The constant 2*pi*dr*dz cancels in a weighted
     # mean/std, so the weight is simply r (and 0 on the axis or outside the
     # region).
     RZ_central: tuple[Array, Array] | None = None
@@ -118,7 +114,7 @@ def objective_maker(
 
     def compute_reference_average_B2_on_grid() -> float:
         """<B^2> on the grid for the coil as originally given, before any
-        optimization -- used to normalize the B^2-on-grid objective so its
+        optimization, used to normalize the B^2-on-grid objective so its
         value starts at 1 and is dimensionless, comparable across coils of
         very different absolute field strength.
         """
@@ -266,6 +262,86 @@ def objective_maker(
         rms_deviation = jnp.sqrt(variance + 1e-30)
         return rms_deviation / (mean_field + 1e-30)
 
+    # Shared evaluation grid over the bore's interior (0 <= r <= r_inner(z),
+    # the winding's own curve, at every z across the coil's whole height).
+    # Used by both compute_magnetic_energy_in_bore and compute_field_
+    # inhomogeneity_in_bore below. Unlike RZ_on_grid/RZ_central above (fixed
+    # once from the coil's INITIAL shape), this must be rebuilt from the
+    # current curve_parameters on every call, since the bore's own extent is
+    # exactly what's being optimized. Resolution is hardcoded (not tied to
+    # nr/nz, the source-point discretization).
+    def whole_bore_grid(curve_parameters):
+        bore_grid_nr, bore_grid_nz = 32, 64
+        z_top = computer.find_z_bound_for_a_given_arc_length(
+            pancake_coil.total_vertical_arc_length, curve_parameters
+        )
+        dz = 2 * z_top / bore_grid_nz
+        z_centers = jnp.linspace(-z_top + dz / 2, z_top - dz / 2, bore_grid_nz)
+
+        r_inner_at_z = computer.compute_curve(jnp.abs(z_centers), curve_parameters)
+        dr_per_row = r_inner_at_z / bore_grid_nr
+        r_offsets = jnp.arange(bore_grid_nr) + 0.5
+        R = dr_per_row[:, None] * r_offsets[None, :]
+        Z = jnp.broadcast_to(z_centers[:, None], R.shape)
+        return R, Z, dr_per_row, dz
+
+    # Total stored magnetic-field energy in the bore
+    def compute_magnetic_energy_in_bore(curve_parameters, r_source, z_source, J_source, dA):
+        R, Z, dr_per_row, dz = whole_bore_grid(curve_parameters)
+        B2 = computer.compute_something_in_the_whole_grid(
+            R, Z, r_source, z_source, J_source, dA,
+            "magnetic_field_magnitude_squared", curve_parameters,
+        )
+        energy_density = B2 / (2 * mu_0)
+        dV = 2 * jnp.pi * R * dr_per_row[:, None] * dz
+        return jnp.sum(energy_density * dV)
+
+    # Field homogeneity (relative spatial variation, std/mean of |B|) over
+    # the whole bore. The bore-wide analog of compute_field_inhomogeneity
+    # above, which only samples a small central region (default 20% of the
+    # bore radius).
+    #
+    # The weight is the full cylindrical volume element R * dr_per_row. The
+    # 2*pi and dz factors are the same for every cell and cancel in the
+    # ratio, but dr_per_row = r_inner(z)/bore_grid_nr does NOT:
+    # whole_bore_grid gives every row the same NUMBER of radial cells, so a
+    # row where the bore is wide has physically wider cells, and weighting
+    # by R alone would count them as representing the same radial extent as
+    # cells in a narrow row. The two agree exactly when the bore radius is
+    # independent of z, which is why the unoptimized coil shows no
+    # difference (its bore is a straight cylinder), but they diverge once
+    # the optimizer flares the bore: measured at 1.57% in h for the
+    # pure-homogeneity design.
+    def compute_field_inhomogeneity_in_bore(curve_parameters, r_source, z_source, J_source, dA):
+        R, Z, dr_per_row, _ = whole_bore_grid(curve_parameters)
+        b = computer.compute_something_in_the_whole_grid(
+            R, Z, r_source, z_source, J_source, dA,
+            "magnetic_field_magnitude", curve_parameters,
+        )
+        W = R * dr_per_row[:, None]
+        weight_sum = jnp.sum(W) + 1e-30
+        mean_field = jnp.sum(W * b) / weight_sum
+        variance = jnp.sum(W * (b - mean_field) ** 2) / weight_sum
+        rms_deviation = jnp.sqrt(variance + 1e-30)
+        return rms_deviation / (mean_field + 1e-30)
+
+    # Volume-averaged field strength over the whole bore: the same region
+    # as compute_magnetic_energy_in_bore, reduced to a mean of |B| instead
+    # of an integral of |B|^2.
+    #
+    # The weight is the full cylindrical volume element, R * dr_per_row
+    # (dz is the same for every row, so it cancels in a weighted mean).
+    def compute_average_magnetic_field_magnitude_in_bore(
+        curve_parameters, r_source, z_source, J_source, dA
+    ):
+        R, Z, dr_per_row, _ = whole_bore_grid(curve_parameters)
+        b = computer.compute_something_in_the_whole_grid(
+            R, Z, r_source, z_source, J_source, dA,
+            "magnetic_field_magnitude", curve_parameters,
+        )
+        W = R * dr_per_row[:, None]
+        return jnp.sum(W * b) / (jnp.sum(W) + 1e-30)
+
     weights = pancake_coil_optimization_settings.objective_weights or [1.0] * len(
         objectives
     )
@@ -276,6 +352,17 @@ def objective_maker(
             continue
         if objective == "minimize_field_inhomogeneity":
             signed_compute_functions.append((compute_field_inhomogeneity, weight))
+            continue
+        if objective == "maximize_magnetic_energy_in_bore":
+            signed_compute_functions.append((compute_magnetic_energy_in_bore, -weight))
+            continue
+        if objective == "maximize_average_magnetic_field_magnitude_in_bore":
+            signed_compute_functions.append(
+                (compute_average_magnetic_field_magnitude_in_bore, -weight)
+            )
+            continue
+        if objective == "minimize_field_inhomogeneity_in_bore":
+            signed_compute_functions.append((compute_field_inhomogeneity_in_bore, weight))
             continue
         variable_name, compute_what, do_what = _parse_objective_name(objective)
         compute_fn = make_compute_function(variable_name, compute_what)
@@ -312,7 +399,7 @@ def objective_maker(
         )
 
         # A solver probing a pathological shape (e.g. one that momentarily
-        # collapses the winding radius) can hit a NaN objective; return a
+        # collapses the winding radius) can hit a NaN objective. Return a
         # large finite penalty instead so it's steered away rather than
         # crashing the optimization.
         return jnp.where(jnp.isfinite(objective_value), objective_value, 1e10)
@@ -333,9 +420,46 @@ def optimize(
 
     initial_parameters = pancake_coil.curve_parameters
     constraints = pancake_coil_optimization_settings.constraints
-    parameter_bounds = [
-        (constraints.minimum_central_inner_radius, constraints.maximum_central_inner_radius)
-    ] + [(-2.0, 2.0)] * (len(initial_parameters) - 1)
+
+    # When the bore is pinned to a single value (minimum_central_inner_
+    # radius == maximum_central_inner_radius, run.py's "the bore is a
+    # design specification" choice), encoding that as a zero-width box
+    # bound on parameters[0] is not numerically reliable for every solver:
+    # trust-constr's interior-point/SQP machinery assumes bounds have a
+    # nonempty interior to move around in, and was observed to let
+    # parameters[0] drift several percent past a degenerate (min==max)
+    # bound instead of holding it exactly, while COBYQA (a derivative-free
+    # trust-region method that treats bounds combinatorially) respects it
+    # exactly. Fixed here by removing the pinned parameter from the
+    # decision vector entirely. Only the free (higher-order) parameters
+    # are optimized, with the bore value spliced back in as a true
+    # constant. So the pin is exact by construction for every solver,
+    # rather than relying on a general-purpose solver's numerical bound
+    # handling to enforce a degenerate constraint.
+    bore_is_pinned = (
+        constraints.minimum_central_inner_radius == constraints.maximum_central_inner_radius
+    )
+    bore_value = constraints.minimum_central_inner_radius
+
+    if bore_is_pinned:
+        free_initial_parameters = list(initial_parameters[1:])
+        parameter_bounds = [(-2.0, 2.0)] * (len(initial_parameters) - 1)
+
+        def full_parameters(free_parameters: Array) -> Array:
+            return jnp.concatenate([jnp.array([bore_value]), jnp.asarray(free_parameters)])
+
+        def reduced_objective(free_parameters: Array) -> ArrayLike:
+            return objective(full_parameters(free_parameters))
+    else:
+        free_initial_parameters = list(initial_parameters)
+        parameter_bounds = [
+            (constraints.minimum_central_inner_radius, constraints.maximum_central_inner_radius)
+        ] + [(-2.0, 2.0)] * (len(initial_parameters) - 1)
+
+        def full_parameters(free_parameters: Array) -> Array:
+            return jnp.asarray(free_parameters)
+
+        reduced_objective = objective
 
     solver = pancake_coil_optimization_settings.solver
     minimize_kwargs: dict = {
@@ -348,7 +472,7 @@ def optimize(
     # differentiable, so trust-constr can be handed the exact autodiff
     # gradient instead of falling back to its own finite-difference one.
     if solver == "trust-constr":
-        gradient = jax.jit(jax.grad(objective))
+        gradient = jax.jit(jax.grad(reduced_objective))
 
         def jac(x):
             # A pathological shape the solver probes can produce a non-finite
@@ -363,13 +487,21 @@ def optimize(
     # rewards a bigger/stronger field (e.g. field efficiency, central field)
     # can bulge the coil's ends outward without bound, since nothing else in
     # the problem penalizes size directly.
+    #
+    # Optional floor on the coil's inner radius over the whole curve: without
+    # it, only r(0) is bounded (via minimum_central_inner_radius, a plain
+    # bound on parameters[0]). The higher-order coefficients can still let
+    # r(z) dip toward or through 0 away from the center, self-intersecting
+    # the winding.
+    nonlinear_constraints = []
     max_outer_radius = constraints.maximum_outer_radius
-    if max_outer_radius is not None:
+    min_inner_radius = constraints.minimum_inner_radius
+    if max_outer_radius is not None or min_inner_radius is not None:
         if solver == "Nelder-Mead":
             message = (
-                "maximum_outer_radius constraint requires a constraint-capable"
-                " solver ('COBYQA' or 'trust-constr'); 'Nelder-Mead' does not"
-                " support constraints."
+                "maximum_outer_radius/minimum_inner_radius constraints require a"
+                " constraint-capable solver ('COBYQA' or 'trust-constr');"
+                " 'Nelder-Mead' does not support constraints."
             )
             raise ValueError(message)
 
@@ -377,22 +509,47 @@ def optimize(
         coil_width = pancake_coil.width
 
         @jax.jit
-        def outer_radius(parameters):
+        def curve_over_z(free_parameters):
+            parameters = full_parameters(free_parameters)
             z_top = computer.find_z_bound_for_a_given_arc_length(
                 arc_length, parameters
             )
             z_grid = jnp.linspace(-z_top, z_top, 256)
-            return jnp.max(computer.compute_curve(z_grid, parameters)) + coil_width
+            return computer.compute_curve(z_grid, parameters)
 
-        minimize_kwargs["constraints"] = scipy.optimize.NonlinearConstraint(
-            lambda x: float(outer_radius(jnp.asarray(x))), 0.0, max_outer_radius
-        )
+        if max_outer_radius is not None:
+
+            @jax.jit
+            def outer_radius(free_parameters):
+                return jnp.max(curve_over_z(free_parameters)) + coil_width
+
+            nonlinear_constraints.append(
+                scipy.optimize.NonlinearConstraint(
+                    lambda x: float(outer_radius(jnp.asarray(x))), 0.0, max_outer_radius
+                )
+            )
+
+        if min_inner_radius is not None:
+
+            @jax.jit
+            def inner_radius(free_parameters):
+                return jnp.min(curve_over_z(free_parameters))
+
+            nonlinear_constraints.append(
+                scipy.optimize.NonlinearConstraint(
+                    lambda x: float(inner_radius(jnp.asarray(x))), min_inner_radius, jnp.inf
+                )
+            )
+
+        minimize_kwargs["constraints"] = nonlinear_constraints
 
     start_time = time.time()
-    scipy_result = scipy.optimize.minimize(objective, initial_parameters, **minimize_kwargs)
+    scipy_result = scipy.optimize.minimize(
+        reduced_objective, free_initial_parameters, **minimize_kwargs
+    )
     time_took_to_optimize = time.time() - start_time
 
-    optimized_parameters = scipy_result.x
+    optimized_parameters = numpy.asarray(full_parameters(scipy_result.x))
     original_parameters = jnp.array(initial_parameters)
 
     def resolve_current_density(parameters: Array) -> ArrayLike:

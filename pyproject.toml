@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "pancakecoilopt"
 version = "0.1.0"
-description = "A Python package to optimize HTS CC pancake coils (rebuilt from scratch)."
+description = "A Python package to optimize HTS pancake coils."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,11 +15,9 @@ dependencies = [
     "jax==0.6.0",
     "jaxellip==0.0.1",
     "ruamel.yaml==0.18.10",
+    "matplotlib==3.10.1",
 ]
-classifiers = ["Intended Audience :: Science/Research"]
 
-# Flat layout: the importable package lives at the repository root rather than
-# under src/, so point the uv build backend there.
 [tool.uv.build-backend]
 module-name = "pancakecoilopt"
 module-root = ""
