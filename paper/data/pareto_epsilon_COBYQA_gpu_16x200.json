@@ -1,0 +1,192 @@
+{
+  "solver": "COBYQA",
+  "backend": "gpu",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "parameter_bound": 2.0,
+  "baseline_energy": 8302473.403936282,
+  "baseline_homogeneity": 0.1241768076971296,
+  "front": [
+    {
+      "epsilon": 0.121,
+      "energy": 8753515.361272737,
+      "homogeneity": 0.12124644026946232,
+      "energy_vs_baseline": 5.432621526045628,
+      "homogeneity_vs_baseline": -2.3598347243830915,
+      "parameters": [
+        0.5,
+        0.6405012182396114,
+        -1.9975682909974792,
+        1.996026008518419,
+        -0.624809302398025
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.125,
+      "energy": 8859466.661824537,
+      "homogeneity": 0.12524008409040924,
+      "energy_vs_baseline": 6.708762928697608,
+      "homogeneity_vs_baseline": 0.8562600480703217,
+      "parameters": [
+        0.5,
+        0.646878715119545,
+        -1.9682551139897364,
+        2.0,
+        -0.657076656541063
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.13,
+      "energy": 8986537.904290196,
+      "homogeneity": 0.13023250847261536,
+      "energy_vs_baseline": 8.239285657086143,
+      "homogeneity_vs_baseline": 4.876676158607463,
+      "parameters": [
+        0.5,
+        0.6856576831412501,
+        -1.9952668251361152,
+        2.0,
+        -0.6525359700519202
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.135,
+      "energy": 9109040.267370446,
+      "homogeneity": 0.13522305874219884,
+      "energy_vs_baseline": 9.714778044959022,
+      "homogeneity_vs_baseline": 8.8955830399597,
+      "parameters": [
+        0.5,
+        0.7137262134227692,
+        -2.0,
+        2.0,
+        -0.6606280566068972
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.14,
+      "energy": 9226065.364781924,
+      "homogeneity": 0.14021238753041673,
+      "energy_vs_baseline": 11.124298939732322,
+      "homogeneity_vs_baseline": 12.913506258268706,
+      "parameters": [
+        0.5,
+        0.7397406750820423,
+        -2.0,
+        2.0,
+        -0.6714373392916437
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.145,
+      "energy": 9337042.252971642,
+      "homogeneity": 0.14520062238745776,
+      "energy_vs_baseline": 12.460971552704535,
+      "homogeneity_vs_baseline": 16.930548530129535,
+      "parameters": [
+        0.5,
+        0.76611503170841,
+        -2.0,
+        2.0,
+        -0.6823929411809431
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.15,
+      "energy": 9441438.798406046,
+      "homogeneity": 0.15018818083435842,
+      "energy_vs_baseline": 13.718386546469029,
+      "homogeneity_vs_baseline": 20.94704608663416,
+      "parameters": [
+        0.5,
+        0.7966527058310331,
+        -2.0,
+        1.9803989840985592,
+        -0.6769583456293817
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.155,
+      "energy": 9539015.27572184,
+      "homogeneity": 0.15517501910179862,
+      "energy_vs_baseline": 14.89365652408236,
+      "homogeneity_vs_baseline": 24.96296368020222,
+      "parameters": [
+        0.5,
+        0.8318049559044316,
+        -2.0,
+        1.9393906175773765,
+        -0.6536625479548968
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.16,
+      "energy": 9629154.335866794,
+      "homogeneity": 0.16016054906745666,
+      "energy_vs_baseline": 15.97934576100563,
+      "homogeneity_vs_baseline": 28.97782769395419,
+      "parameters": [
+        0.5,
+        0.8679277986191091,
+        -2.0,
+        1.8964235803685168,
+        -0.6290336978429798
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.17,
+      "energy": 9784145.754404705,
+      "homogeneity": 0.1701272500364082,
+      "energy_vs_baseline": 17.84615593909579,
+      "homogeneity_vs_baseline": 37.00404543443642,
+      "parameters": [
+        0.5,
+        0.9434988761725881,
+        -2.0,
+        1.8034723520901412,
+        -0.574933854493279
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.18,
+      "energy": 9898741.66984151,
+      "homogeneity": 0.1800846995426145,
+      "energy_vs_baseline": 19.226418300219084,
+      "homogeneity_vs_baseline": 45.022812940920225,
+      "parameters": [
+        0.5,
+        1.0193970388478388,
+        -2.0,
+        1.7243252890028722,
+        -0.5343091435255517
+      ],
+      "constraint_active": true
+    },
+    {
+      "epsilon": 0.196,
+      "energy": 9972450.97635556,
+      "homogeneity": 0.19555174567594977,
+      "energy_vs_baseline": 20.114217669490227,
+      "homogeneity_vs_baseline": 57.47847710250811,
+      "parameters": [
+        0.5,
+        1.1416612539452429,
+        -2.0,
+        1.620756788245382,
+        -0.49520164795292304
+      ],
+      "constraint_active": false
+    }
+  ]
+}

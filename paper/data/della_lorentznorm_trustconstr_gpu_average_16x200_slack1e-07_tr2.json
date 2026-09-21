@@ -1,0 +1,22 @@
+{
+  "solver": "trust-constr",
+  "backend": "gpu",
+  "objective": "minimize_average_lorentz_force_density_magnitude",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "objective_value": 8.737277855799e-08,
+  "winning_restart": "restart 1",
+  "parameters": [
+    0.5,
+    0.007423831065085621,
+    -0.2507148508839935,
+    1.999881208875008,
+    1.9998485216450725
+  ],
+  "current_density": 20219532.959574427,
+  "mean_F": 35720570.516346954,
+  "max_F": 80691633.77139887,
+  "normalized_mean_F": 8.737277855799e-08,
+  "normalized_max_F": 1.9737233048291948e-07
+}

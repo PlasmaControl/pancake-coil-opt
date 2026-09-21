@@ -1,0 +1,36 @@
+{
+  "solver": "COBYQA",
+  "objective": "maximize_average_J_critical",
+  "nr": 16,
+  "nz": 200,
+  "pool": 200,
+  "trials_per_N": 4000,
+  "tolerance": 0.02,
+  "true_best": 51644738.30307298,
+  "feasible_fraction": 0.995,
+  "single_run_success_rate": 0.96,
+  "N_values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    15,
+    20
+  ],
+  "miss_rates": [
+    0.03725,
+    0.0025,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ]
+}

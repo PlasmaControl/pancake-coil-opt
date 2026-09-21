@@ -1,0 +1,21 @@
+{
+  "solver": "COBYQA",
+  "backend": "gpu",
+  "objective": "maximize_magnetic_energy_in_bore",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "objective_value": -9972450.97635556,
+  "winning_restart": "restart 5",
+  "parameters": [
+    0.5,
+    1.141661255322704,
+    -2.0,
+    1.6207565385257368,
+    -0.49520138724726864
+  ],
+  "current_density": 18954051.389541678,
+  "mean_J_critical": 37672176.28888621,
+  "min_J_critical": 18954051.38954944,
+  "total_seconds": 318.22363147395663
+}

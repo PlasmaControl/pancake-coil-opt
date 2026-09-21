@@ -1,0 +1,444 @@
+{
+  "solver": "COBYQA",
+  "backend": "gpu",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "parameter_bound": 2.0,
+  "baseline_energy": 8302473.403936282,
+  "baseline_homogeneity": 0.1241768076971296,
+  "front": [
+    {
+      "weight": 0.0,
+      "scalarized_value": 0.9512993699091453,
+      "energy": 8715458.888421291,
+      "homogeneity": 0.1181293189196085,
+      "energy_vs_baseline": 4.974246400948533,
+      "homogeneity_vs_baseline": -4.870063009085469,
+      "parameters": [
+        0.5,
+        0.6231050401873554,
+        -1.9986083163241117,
+        2.0,
+        -0.5906233387163933
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 79.16421950003132
+    },
+    {
+      "weight": 0.1,
+      "scalarized_value": 0.7502782596000239,
+      "energy": 8715058.167508654,
+      "homogeneity": 0.11800214069751858,
+      "energy_vs_baseline": 4.969419876452265,
+      "homogeneity_vs_baseline": -4.972480058169315,
+      "parameters": [
+        0.5,
+        0.5535817134632274,
+        -1.8483961280956325,
+        1.9989558343641844,
+        -0.691084536184387
+      ],
+      "winning_restart": "restart 4",
+      "discarded": 0,
+      "seconds": 118.52124659297988
+    },
+    {
+      "weight": 0.2,
+      "scalarized_value": 0.5509622782235575,
+      "energy": 8726064.959786784,
+      "homogeneity": 0.11814899581297761,
+      "energy_vs_baseline": 5.1019923249579255,
+      "homogeneity_vs_baseline": -4.854217140815845,
+      "parameters": [
+        0.5,
+        0.6268611705350117,
+        -1.9972167669799248,
+        2.0,
+        -0.6018632067874585
+      ],
+      "winning_restart": "restart 4",
+      "discarded": 0,
+      "seconds": 81.28729709493928
+    },
+    {
+      "weight": 0.3,
+      "scalarized_value": 0.35067151055933615,
+      "energy": 8725875.729350448,
+      "homogeneity": 0.11814015618105361,
+      "energy_vs_baseline": 5.099713119387131,
+      "homogeneity_vs_baseline": -4.861335726071762,
+      "parameters": [
+        0.5,
+        0.6240643960485667,
+        -1.9915395373933795,
+        2.0,
+        -0.6053201451782494
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 99.42623447603546
+    },
+    {
+      "weight": 0.4,
+      "scalarized_value": 0.15013670366441717,
+      "energy": 8727207.631419625,
+      "homogeneity": 0.11809208722031936,
+      "energy_vs_baseline": 5.115755351675957,
+      "homogeneity_vs_baseline": -4.900045821479832,
+      "parameters": [
+        0.5,
+        0.5851647866543104,
+        -1.906569238153519,
+        1.9999996916714509,
+        -0.6634834236231696
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 93.88534957705997
+    },
+    {
+      "weight": 0.5,
+      "scalarized_value": -0.050119293934193565,
+      "energy": 8732142.278312102,
+      "homogeneity": 0.11815588709278194,
+      "energy_vs_baseline": 5.175191216777762,
+      "homogeneity_vs_baseline": -4.848667570060947,
+      "parameters": [
+        0.5,
+        0.6026283072823182,
+        -1.939769467746246,
+        2.0,
+        -0.6456957407948392
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 96.06327811721712
+    },
+    {
+      "weight": 0.6,
+      "scalarized_value": -0.25060310733906827,
+      "energy": 8746811.95160798,
+      "homogeneity": 0.11843617048614807,
+      "energy_vs_baseline": 5.351881614712947,
+      "homogeneity_vs_baseline": -4.622954412697652,
+      "parameters": [
+        0.5,
+        0.6377075305602349,
+        -2.0,
+        2.0,
+        -0.6204524625270934
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 51.14336309093051
+    },
+    {
+      "weight": 0.65,
+      "scalarized_value": -0.35102405960822664,
+      "energy": 8752008.201102939,
+      "homogeneity": 0.11856046270820715,
+      "energy_vs_baseline": 5.414468379429291,
+      "homogeneity_vs_baseline": -4.522861469124622,
+      "parameters": [
+        0.5,
+        0.6402586595950713,
+        -2.0,
+        1.9999968983987522,
+        -0.6255341887611847
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 55.47509411815554
+    },
+    {
+      "weight": 0.7,
+      "scalarized_value": -0.45157674406984766,
+      "energy": 8763432.794165146,
+      "homogeneity": 0.11891492617008553,
+      "energy_vs_baseline": 5.552073072710098,
+      "homogeneity_vs_baseline": -4.23741085362569,
+      "parameters": [
+        0.5,
+        0.6457702277215286,
+        -2.0,
+        2.0,
+        -0.6358177476420893
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 47.58747048210353
+    },
+    {
+      "weight": 0.71,
+      "scalarized_value": -0.47171346150748805,
+      "energy": 8765332.403257322,
+      "homogeneity": 0.11898223730316,
+      "energy_vs_baseline": 5.574953110980084,
+      "homogeneity_vs_baseline": -4.183204972251575,
+      "parameters": [
+        0.5,
+        0.6467122106772428,
+        -2.0,
+        2.0,
+        -0.6375246522764162
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 61.23387081292458
+    },
+    {
+      "weight": 0.72,
+      "scalarized_value": -0.4918602013273628,
+      "energy": 8769058.23182441,
+      "homogeneity": 0.11912217707644006,
+      "energy_vs_baseline": 5.619829238681031,
+      "homogeneity_vs_baseline": -4.070511003164069,
+      "parameters": [
+        0.5,
+        0.6484379968316908,
+        -2.0,
+        2.0,
+        -0.6405003328104537
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 40.703051089076325
+    },
+    {
+      "weight": 0.73,
+      "scalarized_value": -0.5120231894840633,
+      "energy": 8772847.87642648,
+      "homogeneity": 0.1192717183596396,
+      "energy_vs_baseline": 5.665474005218612,
+      "homogeneity_vs_baseline": -3.95008490591387,
+      "parameters": [
+        0.5,
+        0.6502149657945673,
+        -2.0,
+        2.0,
+        -0.6435245170018344
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 68.2739616939798
+    },
+    {
+      "weight": 0.74,
+      "scalarized_value": -0.5325635936920566,
+      "energy": 8950895.295925751,
+      "homogeneity": 0.12667481147362264,
+      "energy_vs_baseline": 7.809984572573837,
+      "homogeneity_vs_baseline": 2.011650824996025,
+      "parameters": [
+        0.5,
+        0.6852590877410709,
+        -2.0,
+        2.0,
+        -0.6586437330975683
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 39.74956847005524
+    },
+    {
+      "weight": 0.75,
+      "scalarized_value": -0.5539753763842591,
+      "energy": 9130617.225379685,
+      "homogeneity": 0.13452550577125186,
+      "energy_vs_baseline": 9.974663948345468,
+      "homogeneity_vs_baseline": 8.333841291332751,
+      "parameters": [
+        0.5,
+        0.7320170439666179,
+        -2.0,
+        1.9522951172664922,
+        -0.633547503688456
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 37.06528521399014
+    },
+    {
+      "weight": 0.76,
+      "scalarized_value": -0.5761750745358767,
+      "energy": 9276192.680582799,
+      "homogeneity": 0.14122949185639944,
+      "energy_vs_baseline": 11.728062581746634,
+      "homogeneity_vs_baseline": 13.73258378558238,
+      "parameters": [
+        0.5,
+        0.7748803881394073,
+        -2.0,
+        1.9007875212866197,
+        -0.6031887403549717
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 40.94218018185347
+    },
+    {
+      "weight": 0.77,
+      "scalarized_value": -0.59902877084635,
+      "energy": 9393041.652717281,
+      "homogeneity": 0.14691427628375897,
+      "energy_vs_baseline": 13.135462117396854,
+      "homogeneity_vs_baseline": 18.310559764176443,
+      "parameters": [
+        0.5,
+        0.8120091927403006,
+        -2.0,
+        1.8567787520213024,
+        -0.5773721261880838
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 55.30999092105776
+    },
+    {
+      "weight": 0.78,
+      "scalarized_value": -0.6224350303780082,
+      "energy": 9488457.940302152,
+      "homogeneity": 0.1518263174818754,
+      "energy_vs_baseline": 14.284713466273603,
+      "homogeneity_vs_baseline": 22.266243026784554,
+      "parameters": [
+        0.5,
+        0.8447324115961007,
+        -2.0,
+        1.8184743348645358,
+        -0.5550028914780163
+      ],
+      "winning_restart": "continuation",
+      "discarded": 0,
+      "seconds": 44.287897397065535
+    },
+    {
+      "weight": 0.79,
+      "scalarized_value": -0.6463162368504882,
+      "energy": 9567421.886815505,
+      "homogeneity": 0.15613554578400182,
+      "energy_vs_baseline": 15.235802890732527,
+      "homogeneity_vs_baseline": 25.73647904109469,
+      "parameters": [
+        0.5,
+        0.8739729917850517,
+        -2.0,
+        1.7846477026256007,
+        -0.5353403414628152
+      ],
+      "winning_restart": "restart 4",
+      "discarded": 0,
+      "seconds": 51.02171277906746
+    },
+    {
+      "weight": 0.8,
+      "scalarized_value": -0.6706114045509204,
+      "energy": 9633452.89979548,
+      "homogeneity": 0.15996304717942691,
+      "energy_vs_baseline": 16.031120259032306,
+      "homogeneity_vs_baseline": 28.818778760669108,
+      "parameters": [
+        0.5,
+        0.9003928437389931,
+        -2.0,
+        1.754433096377761,
+        -0.517866516626606
+      ],
+      "winning_restart": "restart 0",
+      "discarded": 0,
+      "seconds": 41.146930356975645
+    },
+    {
+      "weight": 0.82,
+      "scalarized_value": -0.720256485051644,
+      "energy": 9736312.873260308,
+      "homogeneity": 0.16650574489456052,
+      "energy_vs_baseline": 17.2700278527147,
+      "homogeneity_vs_baseline": 34.08763518923137,
+      "parameters": [
+        0.5,
+        0.9465965887670716,
+        -2.0,
+        1.7025141076498462,
+        -0.4881146885039615
+      ],
+      "winning_restart": "restart 3",
+      "discarded": 0,
+      "seconds": 55.43385355384089
+    },
+    {
+      "weight": 0.85,
+      "scalarized_value": -0.7968100880553171,
+      "energy": 9835260.041474652,
+      "homogeneity": 0.17394295952973476,
+      "energy_vs_baseline": 18.46180725868584,
+      "homogeneity_vs_baseline": 40.076849095674994,
+      "parameters": [
+        0.5,
+        0.9974913111872944,
+        -2.0,
+        1.6594755767443254,
+        -0.46837783908027847
+      ],
+      "winning_restart": "restart 0",
+      "discarded": 0,
+      "seconds": 47.24308553803712
+    },
+    {
+      "weight": 0.9,
+      "scalarized_value": -0.9283090493858805,
+      "energy": 9922953.053799894,
+      "homogeneity": 0.18297857926031838,
+      "energy_vs_baseline": 19.51803481954338,
+      "homogeneity_vs_baseline": 47.35326399000995,
+      "parameters": [
+        0.5,
+        1.0561558543785907,
+        -2.0,
+        1.6363787355792951,
+        -0.47085587945379315
+      ],
+      "winning_restart": "unjittered_original",
+      "discarded": 0,
+      "seconds": 47.56713879806921
+    },
+    {
+      "weight": 0.95,
+      "scalarized_value": -1.0633896569135217,
+      "energy": 9962239.700359434,
+      "homogeneity": 0.1900575678465441,
+      "energy_vs_baseline": 19.99122689915804,
+      "homogeneity_vs_baseline": 53.05399725695908,
+      "parameters": [
+        0.5,
+        1.1050014490390365,
+        -2.0,
+        1.6175999911356507,
+        -0.47466104031931167
+      ],
+      "winning_restart": "restart 1",
+      "discarded": 0,
+      "seconds": 68.95545820496045
+    },
+    {
+      "weight": 1.0,
+      "scalarized_value": -1.2011421766948718,
+      "energy": 9972450.976355307,
+      "homogeneity": 0.19560711646971962,
+      "energy_vs_baseline": 20.114217669487175,
+      "homogeneity_vs_baseline": 57.52306738856612,
+      "parameters": [
+        0.5,
+        1.1416612551056189,
+        -2.0,
+        1.620755934126715,
+        -0.49520084437240147
+      ],
+      "winning_restart": "restart 4",
+      "discarded": 0,
+      "seconds": 62.44533027498983
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "solver": "COBYQA",
+  "backend": "gpu",
+  "nr": 16,
+  "nz": 200,
+  "final_tr_radius": 1e-08,
+  "parameter_bound": 2.0,
+  "baseline_energy": 8302473.403936282,
+  "baseline_homogeneity": 0.1241768076971296,
+  "front": [
+    {
+      "weight": 0.0,
+      "scalarized_value": 0.9645134135102542,
+      "energy": 8689878.764854115,
+      "homogeneity": 0.11977019667076488,
+      "energy_vs_baseline": 4.666143955777806,
+      "homogeneity_vs_baseline": -3.548658648974579,
+      "parameters": [
+        0.5,
+        0.5023091633298187,
+        -1.7578552585027942,
+        2.0,
+        -0.7321994399179349
+      ],
+      "discarded": 0
+    },
+    {
+      "weight": 0.1,
+      "scalarized_value": 0.7675126887186496,
+      "energy": 8701987.856060676,
+      "homogeneity": 0.12035832696758875,
+      "energy_vs_baseline": 4.8119931577857376,
+      "homogeneity_vs_baseline": -3.0750353470627374,
+      "parameters": [
+        0.5,
+        0.618660001744465,
+        -2.0,
+        1.99999599428074,
+        -0.577041444937187
+      ],
+      "discarded": 0
+    },
+    {
+      "weight": 0.2,
+      "scalarized_value": 0.5656584685839294,
+      "energy": 8703134.310643654,
+      "homogeneity": 0.12034441215809444,
+      "energy_vs_baseline": 4.825801748638127,
+      "homogeneity_vs_baseline": -3.0862409898493093,
+      "parameters": [
+        0.5,
+        0.6167412135294528,
+        -1.9951917705078692,
+        1.9999904135810451,
+        -0.581131905717923
+      ],
+      "discarded": 0
+    },
+    {
+      "weight": 0.3,
+      "scalarized_value": 0.3610260079667346,
+      "energy": 8681965.757020947,
+      "homogeneity": 0.11969553505504792,
+      "energy_vs_baseline": 4.570834914144306,
+      "homogeneity_vs_baseline": -3.6087838986903464,
+      "parameters": [
+        0.5,
+        0.4766587856780479,
+        -1.7034096078617944,
+        2.0,
+        -0.7682438684968774
+      ],
+      "discarded": 0
+    },
+    {
+      "weight": 0.4,
+      "scalarized_value": 0.15994309506631382,
+      "energy": 8695903.053006122,
+      "homogeneity": 0.11980949106208902,
+      "energy_vs_baseline": 4.738704117779062,
+      "homogeneity_vs_baseline": -3.5170147437616386,
+      "parameters": [
+        0.5,
+        0.508744753732971,
+        -1.76558028171527,
+        2.0,
+        -0.7337825342216505
+      ],
+      "discarded": 0
+    },
+    {
+      "weight": 0.5,
+      "scalarized_value": -0.04136980122760053,
+      "energy": 8708444.595649408,
+      "homogeneity": 0.11997441838181745,
+      "energy_vs_baseline": 4.889762025863901,
+      "homogeneity_vs_baseline": -3.384198219656191,
+      "parameters": [
+        0.5,
+        0.5352251500367028,
+        -1.8136449942501283,
+        2.0,
+        -0.7108637325907663
+      ],
+      "discarded": 0
+    }
+  ]
+}

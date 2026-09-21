@@ -1,0 +1,273 @@
+{
+  "shape_seed": 0,
+  "parameters": [
+    0.5,
+    1.4296171063502774,
+    -1.8656576987781426,
+    0.9186217857197763,
+    -1.297377517589764
+  ],
+  "results": [
+    {
+      "nr": 4,
+      "nz": 100,
+      "n_points": 400,
+      "current_density": 19166764.29332594,
+      "mean_J_critical": 35843700.53661278,
+      "min_J_critical": 19166764.29332594,
+      "elapsed_seconds": 3.1051396559923887
+    },
+    {
+      "nr": 4,
+      "nz": 200,
+      "n_points": 800,
+      "current_density": 19097857.06084657,
+      "mean_J_critical": 35837037.038243555,
+      "min_J_critical": 19097857.060846597,
+      "elapsed_seconds": 3.803913132986054
+    },
+    {
+      "nr": 4,
+      "nz": 300,
+      "n_points": 1200,
+      "current_density": 19074254.364303213,
+      "mean_J_critical": 35834320.651901536,
+      "min_J_critical": 19074254.36430322,
+      "elapsed_seconds": 4.422867275075987
+    },
+    {
+      "nr": 6,
+      "nz": 100,
+      "n_points": 600,
+      "current_density": 19201389.316391442,
+      "mean_J_critical": 36451498.64605751,
+      "min_J_critical": 19201389.316391535,
+      "elapsed_seconds": 3.6794475819915533
+    },
+    {
+      "nr": 6,
+      "nz": 200,
+      "n_points": 1200,
+      "current_density": 19118684.2217836,
+      "mean_J_critical": 36463798.927598104,
+      "min_J_critical": 19118684.221783612,
+      "elapsed_seconds": 2.180409014923498
+    },
+    {
+      "nr": 6,
+      "nz": 300,
+      "n_points": 1800,
+      "current_density": 19089827.7136509,
+      "mean_J_critical": 36473009.94098223,
+      "min_J_critical": 19089827.7136509,
+      "elapsed_seconds": 4.719409147044644
+    },
+    {
+      "nr": 8,
+      "nz": 100,
+      "n_points": 800,
+      "current_density": 19179817.78174242,
+      "mean_J_critical": 36289174.71225356,
+      "min_J_critical": 19179817.781742427,
+      "elapsed_seconds": 1.4842925540870056
+    },
+    {
+      "nr": 8,
+      "nz": 200,
+      "n_points": 1600,
+      "current_density": 19104493.37118749,
+      "mean_J_critical": 36322854.60870445,
+      "min_J_critical": 19104493.3711875,
+      "elapsed_seconds": 4.5512936629820615
+    },
+    {
+      "nr": 8,
+      "nz": 300,
+      "n_points": 2400,
+      "current_density": 19091056.620273147,
+      "mean_J_critical": 36318792.81546972,
+      "min_J_critical": 19091056.620273154,
+      "elapsed_seconds": 4.703042415087111
+    },
+    {
+      "nr": 12,
+      "nz": 100,
+      "n_points": 1200,
+      "current_density": 19140469.283318605,
+      "mean_J_critical": 36430595.18222023,
+      "min_J_critical": 19140469.28331861,
+      "elapsed_seconds": 2.2013546789530665
+    },
+    {
+      "nr": 12,
+      "nz": 200,
+      "n_points": 2400,
+      "current_density": 19095281.49244284,
+      "mean_J_critical": 36446984.158839814,
+      "min_J_critical": 19095281.492450465,
+      "elapsed_seconds": 2.3352831880329177
+    },
+    {
+      "nr": 12,
+      "nz": 300,
+      "n_points": 3600,
+      "current_density": 19076090.70101155,
+      "mean_J_critical": 36454815.097760275,
+      "min_J_critical": 19076090.7010192,
+      "elapsed_seconds": 4.673401582986116
+    },
+    {
+      "nr": 16,
+      "nz": 100,
+      "n_points": 1600,
+      "current_density": 19086921.14562479,
+      "mean_J_critical": 36535198.37629816,
+      "min_J_critical": 19086921.14563242,
+      "elapsed_seconds": 2.2324722539633512
+    },
+    {
+      "nr": 16,
+      "nz": 200,
+      "n_points": 3200,
+      "current_density": 19036428.332189806,
+      "mean_J_critical": 36554892.393059686,
+      "min_J_critical": 19036428.33219737,
+      "elapsed_seconds": 4.383523326017894
+    },
+    {
+      "nr": 16,
+      "nz": 300,
+      "n_points": 4800,
+      "current_density": 19017705.682677485,
+      "mean_J_critical": 36562645.976716585,
+      "min_J_critical": 19017705.682685077,
+      "elapsed_seconds": 4.642617046018131
+    },
+    {
+      "nr": 24,
+      "nz": 100,
+      "n_points": 2400,
+      "current_density": 19019498.354661956,
+      "mean_J_critical": 36631675.3078083,
+      "min_J_critical": 19019498.354669534,
+      "elapsed_seconds": 2.3064781629946083
+    },
+    {
+      "nr": 24,
+      "nz": 200,
+      "n_points": 4800,
+      "current_density": 18977415.604182508,
+      "mean_J_critical": 36625634.61788564,
+      "min_J_critical": 18977415.604190007,
+      "elapsed_seconds": 2.317834294983186
+    },
+    {
+      "nr": 24,
+      "nz": 300,
+      "n_points": 7200,
+      "current_density": 18959721.619134683,
+      "mean_J_critical": 36633578.130524,
+      "min_J_critical": 18959721.619142212,
+      "elapsed_seconds": 4.597166000981815
+    },
+    {
+      "nr": 32,
+      "nz": 100,
+      "n_points": 3200,
+      "current_density": 18981687.329520207,
+      "mean_J_critical": 36662176.64258573,
+      "min_J_critical": 18981687.32952773,
+      "elapsed_seconds": 2.1723993869964033
+    },
+    {
+      "nr": 32,
+      "nz": 200,
+      "n_points": 6400,
+      "current_density": 18946847.587232374,
+      "mean_J_critical": 36658739.64647717,
+      "min_J_critical": 18946847.58723984,
+      "elapsed_seconds": 4.961514408001676
+    },
+    {
+      "nr": 32,
+      "nz": 300,
+      "n_points": 9600,
+      "current_density": 18930657.487998117,
+      "mean_J_critical": 36668459.35315867,
+      "min_J_critical": 18930657.488005634,
+      "elapsed_seconds": 4.818579106009565
+    },
+    {
+      "nr": 48,
+      "nz": 100,
+      "n_points": 4800,
+      "current_density": 18937967.25957534,
+      "mean_J_critical": 36719035.403901696,
+      "min_J_critical": 18937967.259582836,
+      "elapsed_seconds": 2.331377152004279
+    },
+    {
+      "nr": 48,
+      "nz": 200,
+      "n_points": 9600,
+      "current_density": 18913676.446229707,
+      "mean_J_critical": 36709968.664205745,
+      "min_J_critical": 18913676.44623715,
+      "elapsed_seconds": 2.491851787082851
+    },
+    {
+      "nr": 48,
+      "nz": 300,
+      "n_points": 14400,
+      "current_density": 18900671.145844303,
+      "mean_J_critical": 36715323.24926019,
+      "min_J_critical": 18900671.145851772,
+      "elapsed_seconds": 4.863386458950117
+    },
+    {
+      "nr": 64,
+      "nz": 100,
+      "n_points": 6400,
+      "current_density": 18911780.907412656,
+      "mean_J_critical": 36757736.86673864,
+      "min_J_critical": 18911780.90742011,
+      "elapsed_seconds": 2.385987304034643
+    },
+    {
+      "nr": 64,
+      "nz": 200,
+      "n_points": 12800,
+      "current_density": 18894977.690346085,
+      "mean_J_critical": 36736687.35448871,
+      "min_J_critical": 18894977.690353516,
+      "elapsed_seconds": 4.235499095055275
+    },
+    {
+      "nr": 64,
+      "nz": 300,
+      "n_points": 19200,
+      "current_density": 18884460.350027226,
+      "mean_J_critical": 36739178.0587059,
+      "min_J_critical": 18884460.35003464,
+      "elapsed_seconds": 5.56638944207225
+    },
+    {
+      "nr": 96,
+      "nz": 100,
+      "n_points": 9600,
+      "current_density": 18879121.05351855,
+      "mean_J_critical": 36799575.58382913,
+      "min_J_critical": 18879121.053525813,
+      "elapsed_seconds": 2.46569450001698
+    },
+    {
+      "nr": 96,
+      "nz": 200,
+      "n_points": 19200,
+      "current_density": 18873278.833069,
+      "mean_J_critical": 36767023.388307475,
+      "min_J_critical": 18873278.833076417,
+      "elapsed_seconds": 3.1993796720635146
+    }
+  ]
+}

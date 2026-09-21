@@ -1,0 +1,22 @@
+{
+  "solver": "COBYQA",
+  "backend": "cpu",
+  "objective": "minimize_maximum_lorentz_force_density_magnitude",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "objective_value": 1.9714399518868357e-07,
+  "winning_restart": "restart 6",
+  "parameters": [
+    0.5,
+    0.038223373790090394,
+    -0.5870982427147826,
+    2.0,
+    2.0
+  ],
+  "current_density": 20227321.684132818,
+  "mean_F": 36080145.51078374,
+  "max_F": 80660389.72073586,
+  "normalized_mean_F": 8.818434993448061e-08,
+  "normalized_max_F": 1.9714399518868365e-07
+}

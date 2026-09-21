@@ -1,0 +1,20 @@
+{
+  "solver": "COBYQA",
+  "backend": "gpu",
+  "objective": "minimize_maximum_lorentz_force_density_magnitude",
+  "nr": 16,
+  "nz": 200,
+  "rng_seed": 0,
+  "objective_value": 69079677.00812832,
+  "winning_restart": "restart 0",
+  "parameters": [
+    0.5,
+    0.01180858614492075,
+    0.1777710665625163,
+    0.2169756962294974,
+    -0.4680167225368833
+  ],
+  "current_density": 18367967.548859432,
+  "mean_F": 31834465.242621012,
+  "max_F": 69079677.00812827
+}

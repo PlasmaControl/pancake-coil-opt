@@ -1,0 +1,273 @@
+{
+  "shape_seed": 0,
+  "parameters": [
+    0.5,
+    1.4296171063502774,
+    -1.8656576987781426,
+    0.9186217857197763,
+    -1.297377517589764
+  ],
+  "results": [
+    {
+      "nr": 4,
+      "nz": 100,
+      "n_points": 400,
+      "current_density": 19166764.29332594,
+      "mean_force": 33324195.601762347,
+      "max_force": 77720301.46245988,
+      "elapsed_seconds": 3.267357270931825
+    },
+    {
+      "nr": 4,
+      "nz": 200,
+      "n_points": 800,
+      "current_density": 19097857.06084657,
+      "mean_force": 33328818.80586933,
+      "max_force": 77820206.13904735,
+      "elapsed_seconds": 4.192782829049975
+    },
+    {
+      "nr": 4,
+      "nz": 300,
+      "n_points": 1200,
+      "current_density": 19074254.364303213,
+      "mean_force": 33332854.848060887,
+      "max_force": 77854919.79363056,
+      "elapsed_seconds": 4.927133803023025
+    },
+    {
+      "nr": 6,
+      "nz": 100,
+      "n_points": 600,
+      "current_density": 19201389.316391442,
+      "mean_force": 33475232.469589043,
+      "max_force": 80588437.07293561,
+      "elapsed_seconds": 4.038636293960735
+    },
+    {
+      "nr": 6,
+      "nz": 200,
+      "n_points": 1200,
+      "current_density": 19118684.2217836,
+      "mean_force": 33407639.230840467,
+      "max_force": 80552783.57317767,
+      "elapsed_seconds": 2.60741474700626
+    },
+    {
+      "nr": 6,
+      "nz": 300,
+      "n_points": 1800,
+      "current_density": 19089827.7136509,
+      "mean_force": 33383535.476814516,
+      "max_force": 80534665.7398485,
+      "elapsed_seconds": 5.2131777399918064
+    },
+    {
+      "nr": 8,
+      "nz": 100,
+      "n_points": 800,
+      "current_density": 19179817.78174242,
+      "mean_force": 33431305.301644936,
+      "max_force": 81708684.03379439,
+      "elapsed_seconds": 1.7632949999533594
+    },
+    {
+      "nr": 8,
+      "nz": 200,
+      "n_points": 1600,
+      "current_density": 19104493.37118749,
+      "mean_force": 33374295.421487447,
+      "max_force": 81719841.06574367,
+      "elapsed_seconds": 5.088457547943108
+    },
+    {
+      "nr": 8,
+      "nz": 300,
+      "n_points": 2400,
+      "current_density": 19091056.620273147,
+      "mean_force": 33397959.63062535,
+      "max_force": 81828465.82802853,
+      "elapsed_seconds": 5.117314178030938
+    },
+    {
+      "nr": 12,
+      "nz": 100,
+      "n_points": 1200,
+      "current_density": 19140469.283318605,
+      "mean_force": 33318619.33683873,
+      "max_force": 82689156.91041651,
+      "elapsed_seconds": 2.752118565957062
+    },
+    {
+      "nr": 12,
+      "nz": 200,
+      "n_points": 2400,
+      "current_density": 19095281.49244284,
+      "mean_force": 33347572.918643672,
+      "max_force": 82932612.91550873,
+      "elapsed_seconds": 2.771556786959991
+    },
+    {
+      "nr": 12,
+      "nz": 300,
+      "n_points": 3600,
+      "current_density": 19076090.70101155,
+      "mean_force": 33344153.837903883,
+      "max_force": 82986763.04669586,
+      "elapsed_seconds": 5.204632811015472
+    },
+    {
+      "nr": 16,
+      "nz": 100,
+      "n_points": 1600,
+      "current_density": 19086921.14562479,
+      "mean_force": 33147660.75232179,
+      "max_force": 82905576.46662684,
+      "elapsed_seconds": 2.6450113049941137
+    },
+    {
+      "nr": 16,
+      "nz": 200,
+      "n_points": 3200,
+      "current_density": 19036428.332189806,
+      "mean_force": 33145068.604852077,
+      "max_force": 83068111.49864765,
+      "elapsed_seconds": 4.942099579027854
+    },
+    {
+      "nr": 16,
+      "nz": 300,
+      "n_points": 4800,
+      "current_density": 19017705.682677485,
+      "mean_force": 33138991.307781816,
+      "max_force": 83121474.64417323,
+      "elapsed_seconds": 5.271695744013414
+    },
+    {
+      "nr": 24,
+      "nz": 100,
+      "n_points": 2400,
+      "current_density": 19019498.354661956,
+      "mean_force": 32932599.38073106,
+      "max_force": 83046063.73472454,
+      "elapsed_seconds": 2.7787283239886165
+    },
+    {
+      "nr": 24,
+      "nz": 200,
+      "n_points": 4800,
+      "current_density": 18977415.604182508,
+      "mean_force": 32943313.27448003,
+      "max_force": 83204711.74738115,
+      "elapsed_seconds": 2.778547555091791
+    },
+    {
+      "nr": 24,
+      "nz": 300,
+      "n_points": 7200,
+      "current_density": 18959721.619134683,
+      "mean_force": 32935791.888243455,
+      "max_force": 83256815.90056995,
+      "elapsed_seconds": 5.163767512072809
+    },
+    {
+      "nr": 32,
+      "nz": 100,
+      "n_points": 3200,
+      "current_density": 18981687.329520207,
+      "mean_force": 32812921.200676374,
+      "max_force": 83120734.60228358,
+      "elapsed_seconds": 2.5815788729814813
+    },
+    {
+      "nr": 32,
+      "nz": 200,
+      "n_points": 6400,
+      "current_density": 18946847.587232374,
+      "mean_force": 32839651.01613827,
+      "max_force": 83272982.13633284,
+      "elapsed_seconds": 5.322060639038682
+    },
+    {
+      "nr": 32,
+      "nz": 300,
+      "n_points": 9600,
+      "current_density": 18930657.487998117,
+      "mean_force": 32834246.051769607,
+      "max_force": 83325095.01147357,
+      "elapsed_seconds": 5.691669219988398
+    },
+    {
+      "nr": 48,
+      "nz": 100,
+      "n_points": 4800,
+      "current_density": 18937967.25957534,
+      "mean_force": 32674709.923806686,
+      "max_force": 83204367.04198325,
+      "elapsed_seconds": 2.7769512759987265
+    },
+    {
+      "nr": 48,
+      "nz": 200,
+      "n_points": 9600,
+      "current_density": 18913676.446229707,
+      "mean_force": 32727857.668530285,
+      "max_force": 83341886.76886299,
+      "elapsed_seconds": 2.9827170990174636
+    },
+    {
+      "nr": 48,
+      "nz": 300,
+      "n_points": 14400,
+      "current_density": 18900671.145844303,
+      "mean_force": 32729926.385312285,
+      "max_force": 83393643.81444554,
+      "elapsed_seconds": 5.461474836105481
+    },
+    {
+      "nr": 64,
+      "nz": 100,
+      "n_points": 6400,
+      "current_density": 18911780.907412656,
+      "mean_force": 32591897.415766373,
+      "max_force": 83253432.63992588,
+      "elapsed_seconds": 2.8460209609474987
+    },
+    {
+      "nr": 64,
+      "nz": 200,
+      "n_points": 12800,
+      "current_density": 18894977.690346085,
+      "mean_force": 32665160.961670313,
+      "max_force": 83378403.79099572,
+      "elapsed_seconds": 4.717270339024253
+    },
+    {
+      "nr": 64,
+      "nz": 300,
+      "n_points": 19200,
+      "current_density": 18884460.350027226,
+      "mean_force": 32673918.267827045,
+      "max_force": 83427838.04007167,
+      "elapsed_seconds": 6.3167557519627735
+    },
+    {
+      "nr": 96,
+      "nz": 100,
+      "n_points": 9600,
+      "current_density": 18879121.05351855,
+      "mean_force": 32488274.715388674,
+      "max_force": 83309882.26982504,
+      "elapsed_seconds": 2.91852632293012
+    },
+    {
+      "nr": 96,
+      "nz": 200,
+      "n_points": 19200,
+      "current_density": 18873278.833069,
+      "mean_force": 32592642.926458377,
+      "max_force": 83419250.31996453,
+      "elapsed_seconds": 3.7355280690826476
+    }
+  ]
+}

@@ -1,0 +1,499 @@
+{
+  "shape_seed": 0,
+  "parameters": [
+    0.5,
+    1.4296171063502774,
+    -1.8656576987781426,
+    0.9186217857197763,
+    -1.297377517589764
+  ],
+  "optimizer_bore_grid": [
+    32,
+    64
+  ],
+  "source_reference": [
+    16,
+    200
+  ],
+  "source_sweep": [
+    {
+      "nr": 4,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19166764.29332594,
+      "total_energy": 8399293.001725474,
+      "elapsed_seconds": 4.327471634955145
+    },
+    {
+      "nr": 6,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19201389.316391442,
+      "total_energy": 8418655.604716044,
+      "elapsed_seconds": 3.89884103089571
+    },
+    {
+      "nr": 8,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19179817.78174242,
+      "total_energy": 8391480.556773651,
+      "elapsed_seconds": 4.039508273010142
+    },
+    {
+      "nr": 12,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19140469.283318605,
+      "total_energy": 8346539.627101168,
+      "elapsed_seconds": 4.798535667010583
+    },
+    {
+      "nr": 16,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19086921.14562479,
+      "total_energy": 8293665.494748828,
+      "elapsed_seconds": 4.901430180994794
+    },
+    {
+      "nr": 24,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19019498.354661956,
+      "total_energy": 8228186.748634796,
+      "elapsed_seconds": 4.9567895899526775
+    },
+    {
+      "nr": 32,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18981687.329520207,
+      "total_energy": 8191691.2204213515,
+      "elapsed_seconds": 4.7763317479984835
+    },
+    {
+      "nr": 48,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18937967.25957534,
+      "total_energy": 8149961.084187114,
+      "elapsed_seconds": 5.078075618017465
+    },
+    {
+      "nr": 64,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18911780.907412656,
+      "total_energy": 8125327.984116396,
+      "elapsed_seconds": 5.226818658062257
+    },
+    {
+      "nr": 96,
+      "nz": 100,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18879121.05351855,
+      "total_energy": 8095118.1674248185,
+      "elapsed_seconds": 5.190924330032431
+    },
+    {
+      "nr": 4,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19097857.06084657,
+      "total_energy": 8429565.47358954,
+      "elapsed_seconds": 1.7752668360481039
+    },
+    {
+      "nr": 6,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19118684.2217836,
+      "total_energy": 8418994.186893411,
+      "elapsed_seconds": 2.612697756034322
+    },
+    {
+      "nr": 8,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19104493.37118749,
+      "total_energy": 8389509.244643249,
+      "elapsed_seconds": 2.65473385900259
+    },
+    {
+      "nr": 12,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19095281.49244284,
+      "total_energy": 8362371.274540536,
+      "elapsed_seconds": 2.777877093059942
+    },
+    {
+      "nr": 16,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19036428.332189806,
+      "total_energy": 8300585.443637225,
+      "elapsed_seconds": 2.5725707159144804
+    },
+    {
+      "nr": 24,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18977415.604182508,
+      "total_energy": 8238308.2113440465,
+      "elapsed_seconds": 2.7593806529184803
+    },
+    {
+      "nr": 32,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18946847.587232374,
+      "total_energy": 8206104.5414207,
+      "elapsed_seconds": 2.8382901820586994
+    },
+    {
+      "nr": 48,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18913676.446229707,
+      "total_energy": 8171552.856078597,
+      "elapsed_seconds": 2.911837524967268
+    },
+    {
+      "nr": 64,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18894977.690346085,
+      "total_energy": 8152419.966521936,
+      "elapsed_seconds": 4.426615296048112
+    },
+    {
+      "nr": 96,
+      "nz": 200,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18873278.833069,
+      "total_energy": 8130684.744234843,
+      "elapsed_seconds": 5.836000883951783
+    },
+    {
+      "nr": 4,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19074254.364303213,
+      "total_energy": 8443498.042789312,
+      "elapsed_seconds": 2.6220290070632473
+    },
+    {
+      "nr": 6,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19089827.7136509,
+      "total_energy": 8420097.94650435,
+      "elapsed_seconds": 5.199500172981061
+    },
+    {
+      "nr": 8,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19091056.620273147,
+      "total_energy": 8400326.466825657,
+      "elapsed_seconds": 2.9979873130796477
+    },
+    {
+      "nr": 12,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19076090.70101155,
+      "total_energy": 8364545.028795809,
+      "elapsed_seconds": 5.121202963986434
+    },
+    {
+      "nr": 16,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 19017705.682677485,
+      "total_energy": 8301453.113761069,
+      "elapsed_seconds": 2.7709156810306013
+    },
+    {
+      "nr": 24,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18959721.619134683,
+      "total_energy": 8238467.735893996,
+      "elapsed_seconds": 5.030088735977188
+    },
+    {
+      "nr": 32,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18930657.487998117,
+      "total_energy": 8206822.517804362,
+      "elapsed_seconds": 2.9075707960873842
+    },
+    {
+      "nr": 48,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18900671.145844303,
+      "total_energy": 8174323.748325624,
+      "elapsed_seconds": 5.228078652988188
+    },
+    {
+      "nr": 64,
+      "nz": 300,
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "current_density": 18884460.350027226,
+      "total_energy": 8157003.767923668,
+      "elapsed_seconds": 3.453681381070055
+    }
+  ],
+  "bore_grid_sweep": [
+    {
+      "grid_nr": 8,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8308298.81512662,
+      "elapsed_seconds": 1.1554431880358607
+    },
+    {
+      "grid_nr": 16,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8307488.948865253,
+      "elapsed_seconds": 0.97810121497605
+    },
+    {
+      "grid_nr": 32,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8304789.910644442,
+      "elapsed_seconds": 0.9237269039731473
+    },
+    {
+      "grid_nr": 48,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8303165.577141719,
+      "elapsed_seconds": 1.0063099180115387
+    },
+    {
+      "grid_nr": 64,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8302057.982167391,
+      "elapsed_seconds": 0.4210071429843083
+    },
+    {
+      "grid_nr": 96,
+      "grid_nz": 32,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8300992.661100582,
+      "elapsed_seconds": 1.006824093987234
+    },
+    {
+      "grid_nr": 8,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8304035.0741652325,
+      "elapsed_seconds": 0.3321622109506279
+    },
+    {
+      "grid_nr": 16,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8303368.184662558,
+      "elapsed_seconds": 0.34161890496034175
+    },
+    {
+      "grid_nr": 32,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8300585.443637225,
+      "elapsed_seconds": 0.011040469049476087
+    },
+    {
+      "grid_nr": 48,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8298681.920977499,
+      "elapsed_seconds": 0.3418801949592307
+    },
+    {
+      "grid_nr": 64,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8297749.217874294,
+      "elapsed_seconds": 0.9328841139795259
+    },
+    {
+      "grid_nr": 96,
+      "grid_nz": 64,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8296873.069441294,
+      "elapsed_seconds": 0.9291492740157992
+    },
+    {
+      "grid_nr": 8,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8302927.205218412,
+      "elapsed_seconds": 0.5410781899699941
+    },
+    {
+      "grid_nr": 16,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8302379.162450951,
+      "elapsed_seconds": 0.3496110850246623
+    },
+    {
+      "grid_nr": 32,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8299614.546837591,
+      "elapsed_seconds": 0.3501593149267137
+    },
+    {
+      "grid_nr": 48,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8297867.021050395,
+      "elapsed_seconds": 0.35138731205370277
+    },
+    {
+      "grid_nr": 64,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8296807.787276352,
+      "elapsed_seconds": 0.9359101210720837
+    },
+    {
+      "grid_nr": 96,
+      "grid_nz": 128,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8295845.666979065,
+      "elapsed_seconds": 0.9424244030378759
+    },
+    {
+      "grid_nr": 8,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8302754.089296247,
+      "elapsed_seconds": 0.5537084969691932
+    },
+    {
+      "grid_nr": 16,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8302181.727434607,
+      "elapsed_seconds": 0.3537367379758507
+    },
+    {
+      "grid_nr": 32,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8299382.593635238,
+      "elapsed_seconds": 0.35314944409765303
+    },
+    {
+      "grid_nr": 48,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8297480.517487856,
+      "elapsed_seconds": 0.9417777580674738
+    },
+    {
+      "grid_nr": 64,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8296549.2869030535,
+      "elapsed_seconds": 0.3552673449739814
+    },
+    {
+      "grid_nr": 96,
+      "grid_nz": 192,
+      "nr": 16,
+      "nz": 200,
+      "current_density": 19036428.332189806,
+      "total_energy": 8295672.427090749,
+      "elapsed_seconds": 0.9492780340369791
+    }
+  ]
+}
