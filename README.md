@@ -1,5 +1,7 @@
 # Pancake Coil Optimization
 
+GPU-accelerated, differentiable shape optimization of high-temperature superconducting pancake-coil magnets, built on JAX. Axisymmetric Biot-Savart fields, a self-consistent operating current from the local critical-current surface, and constrained multi-objective optimization.
+
 ## Getting Started
 
 1. Install [uv](https://docs.astral.sh/uv/). The installation guide can be found [here](https://docs.astral.sh/uv/getting-started/installation/).
